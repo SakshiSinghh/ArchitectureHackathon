@@ -116,6 +116,7 @@ Core services/agents now provide:
 
 ### Latest verification result
 - `pytest -q` result: **12 passed**
+- Git publishing check: **main pushed to origin**
 
 ## 5) Repository Status (High-Level)
 Top-level files:
@@ -157,3 +158,10 @@ Tests:
 
 ## 9) Risk Notes
 Main near-term risk is perceived overconfidence from heuristic outputs. Current implementation reduces this risk by making provenance, validation, parser confidence, and post-baseline deltas explicit in both API contracts and UI.
+
+## 10) Repository Publishing Status
+- Git initialized and initial commit created.
+- Default branch renamed to `main`.
+- Remote configured: `origin = https://github.com/AlvieKun/ArchitectureHackathon.git`.
+- Push status: `main` successfully pushed and tracking `origin/main`.
+- GitHub web check confirms key files are visible and `README.md` renders correctly.
