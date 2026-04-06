@@ -1,18 +1,18 @@
-"""Climate context service with mock-first behavior for MVP."""
+"""Compatibility wrapper for the provider-based climate service."""
 
 from __future__ import annotations
 
+from typing import Any
+
 from shared.project_state import Site
 
+from backend.services.climate import ClimateService
 
-def get_climate_context(site: Site) -> dict[str, str | float]:
-    """Return lightweight climate context; no external dependency required."""
 
-    location = site.location_name or "Unknown"
-    return {
-        "location": location,
-        "cooling_pressure": 0.55,
-        "solar_exposure": 0.6,
-        "wind_potential": 0.5,
-        "note": "Phase 0 mock climate context. Replace with API-backed data in later phases.",
-    }
+_climate_service = ClimateService()
+
+
+def get_climate_context(site: Site) -> dict[str, Any]:
+    """Return normalized climate context with provider metadata and metrics."""
+
+    return _climate_service.get_climate_summary(site)

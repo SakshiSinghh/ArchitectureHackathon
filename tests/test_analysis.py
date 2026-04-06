@@ -1,4 +1,8 @@
+import os
+
 from fastapi.testclient import TestClient
+
+os.environ.setdefault("MOCK_MODE", "true")
 
 from backend.main import app
 
@@ -71,6 +75,9 @@ def test_baseline_happy_path_when_confirmed() -> None:
     project_state = response.json()["project_state"]
     assert project_state["baseline_results"]["energy_risk"] is not None
     assert project_state["climate_context"]["location"] == "Pune"
+    assert project_state["climate_context"]["provider"] in {"mock", "visualcrossing", "open-meteo"}
+    assert "source_tier" in project_state["climate_context"]
+    assert project_state["baseline_results"]["heat_exposure_score"] is not None
 
 
 def test_baseline_rejects_unconfirmed_state() -> None:

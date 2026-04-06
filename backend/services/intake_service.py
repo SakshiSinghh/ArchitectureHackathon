@@ -150,9 +150,6 @@ def _resolve_defaults_and_unresolved(state: ProjectState) -> None:
         state.assumptions.append("Defaulted window-to-wall ratio to 0.35.")
 
     required_fields = {
-        "site.location_name": state.site.location_name,
-        "site.latitude": state.site.latitude,
-        "site.longitude": state.site.longitude,
         "building.building_type": state.building.building_type,
         "building.width_m": state.building.width_m,
         "building.depth_m": state.building.depth_m,
@@ -160,6 +157,16 @@ def _resolve_defaults_and_unresolved(state: ProjectState) -> None:
         "building.orientation_deg": state.building.orientation_deg,
     }
     unresolved = [field for field, value in required_fields.items() if value in (None, "")]
+
+    has_location_name = bool(state.site.location_name)
+    has_coordinates = state.site.latitude is not None and state.site.longitude is not None
+
+    if not has_location_name and not has_coordinates:
+        unresolved.append("site.location_name")
+
+    if not has_coordinates:
+        unresolved.extend(["site.latitude", "site.longitude"])
+
     _append_unique(state.provenance.unresolved_fields, unresolved)
 
     priorities = [

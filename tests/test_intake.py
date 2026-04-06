@@ -1,4 +1,8 @@
+import os
+
 from fastapi.testclient import TestClient
+
+os.environ.setdefault("MOCK_MODE", "true")
 
 from backend.main import app
 

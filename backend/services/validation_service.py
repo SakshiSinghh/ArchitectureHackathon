@@ -22,12 +22,14 @@ def validate_project_state(project: ProjectState) -> list[ValidationIssue]:
 
     issues: list[ValidationIssue] = []
 
-    if not project.site.location_name:
+    has_coordinates = project.site.latitude is not None and project.site.longitude is not None
+
+    if not project.site.location_name and not has_coordinates:
         issues.append(
             ValidationIssue(
                 severity="error",
                 field="site.location_name",
-                message="Site location is required for climate context.",
+                message="Provide either site.location_name or latitude/longitude for climate context.",
             )
         )
 

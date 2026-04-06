@@ -1,0 +1,307 @@
+{
+  "project_name": "Phase4 Live Workspace",
+  "input_mode": "manual_form",
+  "brief_text": "Iterative testing",
+  "site": {
+    "location_name": "Pune",
+    "latitude": 18.51957,
+    "longitude": 73.85535,
+    "climate_notes": null
+  },
+  "building": {
+    "building_type": "office",
+    "width_m": 24.0,
+    "depth_m": 30.0,
+    "height_m": 32.0,
+    "floors": 8,
+    "orientation_deg": 120.0,
+    "window_to_wall_ratio": 0.4,
+    "geometry_notes": null
+  },
+  "constraints": {
+    "hard_constraints": [],
+    "soft_constraints": []
+  },
+  "priorities": {
+    "energy": 0.25,
+    "daylight": 0.2,
+    "ventilation": 0.2,
+    "cost": 0.2,
+    "aesthetics": 0.15
+  },
+  "provenance": {
+    "user_provided_fields": [],
+    "inferred_fields": [],
+    "defaulted_fields": [],
+    "unresolved_fields": []
+  },
+  "assumptions": [
+    "Baseline scores are climate-informed heuristics, not simulation-grade predictions."
+  ],
+  "validation_issues": [],
+  "climate_context": {
+    "status": "ok",
+    "provider": "visualcrossing",
+    "source_tier": "primary_visualcrossing",
+    "location": "Pune",
+    "latitude": 18.51957,
+    "longitude": 73.85535,
+    "timezone": "Asia/Kolkata",
+    "current": {
+      "timestamp": "1775496600",
+      "temperature_c": 22.1,
+      "humidity_percent": 56.67,
+      "wind_speed_mps": 2.611,
+      "wind_direction_deg": 261.6,
+      "cloud_cover_percent": 0.0,
+      "solar_radiation_wm2": 0.0
+    },
+    "hourly": [
+      {
+        "timestamp": "1775413800",
+        "temperature_c": 22.2,
+        "humidity_percent": 58.96,
+        "wind_speed_mps": 2.389,
+        "wind_direction_deg": 255.7,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 0.0
+      },
+      {
+        "timestamp": "1775417400",
+        "temperature_c": 21.5,
+        "humidity_percent": 62.74,
+        "wind_speed_mps": 3.0,
+        "wind_direction_deg": 267.2,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 0.0
+      },
+      {
+        "timestamp": "1775421000",
+        "temperature_c": 20.9,
+        "humidity_percent": 65.09,
+        "wind_speed_mps": 2.5,
+        "wind_direction_deg": 260.8,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 0.0
+      },
+      {
+        "timestamp": "1775424600",
+        "temperature_c": 20.4,
+        "humidity_percent": 67.57,
+        "wind_speed_mps": 2.611,
+        "wind_direction_deg": 259.6,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 0.0
+      },
+      {
+        "timestamp": "1775428200",
+        "temperature_c": 19.8,
+        "humidity_percent": 71.04,
+        "wind_speed_mps": 2.694,
+        "wind_direction_deg": 269.9,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 0.0
+      },
+      {
+        "timestamp": "1775431800",
+        "temperature_c": 19.3,
+        "humidity_percent": 74.71,
+        "wind_speed_mps": 2.306,
+        "wind_direction_deg": 250.3,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 0.0
+      },
+      {
+        "timestamp": "1775435400",
+        "temperature_c": 19.0,
+        "humidity_percent": 77.11,
+        "wind_speed_mps": 2.194,
+        "wind_direction_deg": 248.4,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 0.0
+      },
+      {
+        "timestamp": "1775439000",
+        "temperature_c": 18.7,
+        "humidity_percent": 78.06,
+        "wind_speed_mps": 2.111,
+        "wind_direction_deg": 249.2,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 0.0
+      },
+      {
+        "timestamp": "1775442600",
+        "temperature_c": 19.6,
+        "humidity_percent": 71.92,
+        "wind_speed_mps": 2.0,
+        "wind_direction_deg": 249.8,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 70.0
+      },
+      {
+        "timestamp": "1775446200",
+        "temperature_c": 21.5,
+        "humidity_percent": 56.52,
+        "wind_speed_mps": 2.306,
+        "wind_direction_deg": 263.9,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 305.0
+      },
+      {
+        "timestamp": "1775449800",
+        "temperature_c": 23.8,
+        "humidity_percent": 42.78,
+        "wind_speed_mps": 3.0,
+        "wind_direction_deg": 278.3,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 552.0
+      },
+      {
+        "timestamp": "1775453400",
+        "temperature_c": 25.8,
+        "humidity_percent": 32.96,
+        "wind_speed_mps": 3.111,
+        "wind_direction_deg": 283.2,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 766.0
+      },
+      {
+        "timestamp": "1775457000",
+        "temperature_c": 28.0,
+        "humidity_percent": 26.87,
+        "wind_speed_mps": 3.806,
+        "wind_direction_deg": 290.7,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 923.0
+      },
+      {
+        "timestamp": "1775460600",
+        "temperature_c": 29.1,
+        "humidity_percent": 25.03,
+        "wind_speed_mps": 3.694,
+        "wind_direction_deg": 287.4,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 1006.0
+      },
+      {
+        "timestamp": "1775464200",
+        "temperature_c": 29.9,
+        "humidity_percent": 24.07,
+        "wind_speed_mps": 3.806,
+        "wind_direction_deg": 283.0,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 1013.0
+      },
+      {
+        "timestamp": "1775467800",
+        "temperature_c": 30.5,
+        "humidity_percent": 23.74,
+        "wind_speed_mps": 4.0,
+        "wind_direction_deg": 281.1,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 943.0
+      },
+      {
+        "timestamp": "1775471400",
+        "temperature_c": 30.8,
+        "humidity_percent": 24.14,
+        "wind_speed_mps": 4.111,
+        "wind_direction_deg": 283.6,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 801.0
+      },
+      {
+        "timestamp": "1775475000",
+        "temperature_c": 30.4,
+        "humidity_percent": 26.43,
+        "wind_speed_mps": 4.5,
+        "wind_direction_deg": 281.9,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 600.0
+      },
+      {
+        "timestamp": "1775478600",
+        "temperature_c": 29.2,
+        "humidity_percent": 30.7,
+        "wind_speed_mps": 4.694,
+        "wind_direction_deg": 275.6,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 361.0
+      },
+      {
+        "timestamp": "1775482200",
+        "temperature_c": 27.1,
+        "humidity_percent": 37.33,
+        "wind_speed_mps": 4.389,
+        "wind_direction_deg": 272.1,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 120.0
+      },
+      {
+        "timestamp": "1775485800",
+        "temperature_c": 25.3,
+        "humidity_percent": 42.91,
+        "wind_speed_mps": 3.806,
+        "wind_direction_deg": 269.2,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 0.0
+      },
+      {
+        "timestamp": "1775489400",
+        "temperature_c": 24.1,
+        "humidity_percent": 46.72,
+        "wind_speed_mps": 3.111,
+        "wind_direction_deg": 261.2,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 0.0
+      },
+      {
+        "timestamp": "1775493000",
+        "temperature_c": 23.1,
+        "humidity_percent": 51.62,
+        "wind_speed_mps": 3.0,
+        "wind_direction_deg": 268.2,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 0.0
+      },
+      {
+        "timestamp": "1775496600",
+        "temperature_c": 22.1,
+        "humidity_percent": 56.67,
+        "wind_speed_mps": 2.611,
+        "wind_direction_deg": 261.6,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 0.0
+      }
+    ],
+    "geocoding": {
+      "geocoded": false,
+      "status": "provided",
+      "message": "Coordinates provided directly by input."
+    },
+    "environmental_metrics": {
+      "heat_exposure_score": 0.326,
+      "solar_exposure_score": 0.389,
+      "ventilation_potential_score": 1.0,
+      "avg_temp": 24.254,
+      "peak_temp": 30.8,
+      "avg_wind_speed": 3.156,
+      "dominant_wind_direction": 225.0,
+      "avg_solar_radiation": 310.833,
+      "peak_solar_radiation": 1013.0,
+      "avg_cloud_cover": 0.0
+    }
+  },
+  "baseline_results": {
+    "summary": "Climate-informed heuristic baseline (not simulation-grade).",
+    "energy_risk": 0.55,
+    "daylight_potential": 0.608,
+    "ventilation_potential": 0.72,
+    "climate_provider": "visualcrossing",
+    "heat_exposure_score": 0.326,
+    "solar_exposure_score": 0.389,
+    "climate_ventilation_score": 1.0,
+    "narrative_insight": "Current baseline is relatively balanced; refine trade-offs against stakeholder priorities."
+  },
+  "mitigation_options": []
+}

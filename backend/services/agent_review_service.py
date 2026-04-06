@@ -21,6 +21,11 @@ def _clamp(value: float) -> float:
 def run_agent_review(project: ProjectState) -> AgentReviewResponse:
     """Run deterministic constraint -> compensation -> trade-off review."""
 
+    climate_metrics = project.climate_context.get("environmental_metrics") or {}
+    heat_exposure = float(climate_metrics.get("heat_exposure_score") or 0.5)
+    solar_exposure = float(climate_metrics.get("solar_exposure_score") or 0.5)
+    ventilation_context = float(climate_metrics.get("ventilation_potential_score") or 0.5)
+
     baseline_energy = float(project.baseline_results.energy_risk or 0.0)
     baseline_daylight = float(project.baseline_results.daylight_potential or 0.0)
     baseline_ventilation = float(project.baseline_results.ventilation_potential or 0.0)
@@ -66,7 +71,8 @@ def run_agent_review(project: ProjectState) -> AgentReviewResponse:
 
     top_option_reason = (
         f"Top option is ranked highest by weighted priority score ({ranked_options[0].score}) "
-        f"with rationale: {ranked_options[0].rationale}"
+        f"with rationale: {ranked_options[0].rationale}. "
+        f"Climate context: heat={heat_exposure:.2f}, solar={solar_exposure:.2f}, ventilation={ventilation_context:.2f}."
         if ranked_options
         else "No mitigation option available for current state."
     )

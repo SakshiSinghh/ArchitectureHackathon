@@ -1,0 +1,325 @@
+{
+  "project_name": "Web Integration Smoke",
+  "input_mode": "manual_form",
+  "brief_text": "onboarding seed",
+  "site": {
+    "location_name": "Pune",
+    "latitude": 18.51957,
+    "longitude": 73.85535,
+    "climate_notes": null
+  },
+  "building": {
+    "building_type": "office",
+    "width_m": 24.0,
+    "depth_m": 30.0,
+    "height_m": 32.0,
+    "floors": 8,
+    "orientation_deg": 120.0,
+    "window_to_wall_ratio": 0.35,
+    "geometry_notes": null
+  },
+  "constraints": {
+    "hard_constraints": [
+      "orientation locked"
+    ],
+    "soft_constraints": [
+      "maximize daylight"
+    ],
+    "free_text": "Facade must remain mostly glazed. Height capped at 8 floors.",
+    "structured_enabled": true,
+    "notes": "stored only"
+  },
+  "priorities": {
+    "energy": 0.25,
+    "daylight": 0.2,
+    "ventilation": 0.2,
+    "cost": 0.2,
+    "aesthetics": 0.15
+  },
+  "provenance": {
+    "user_provided_fields": [],
+    "inferred_fields": [],
+    "defaulted_fields": [],
+    "unresolved_fields": []
+  },
+  "assumptions": [
+    "Free-text constraints were captured but are not automatically parsed into structured rules in this phase."
+  ],
+  "validation_issues": [
+    {
+      "severity": "warning",
+      "field": "site.coordinates",
+      "message": "Latitude/longitude missing; location-based context is less reliable."
+    }
+  ],
+  "climate_context": {
+    "status": "ok",
+    "provider": "visualcrossing",
+    "source_tier": "primary_visualcrossing",
+    "location": "Pune",
+    "latitude": 18.51957,
+    "longitude": 73.85535,
+    "timezone": "Asia/Kolkata",
+    "current": {
+      "timestamp": "1775503800",
+      "temperature_c": 21.0,
+      "humidity_percent": 69.01,
+      "wind_speed_mps": 2.389,
+      "wind_direction_deg": 258.9,
+      "cloud_cover_percent": 0.0,
+      "solar_radiation_wm2": 0.0
+    },
+    "hourly": [
+      {
+        "timestamp": "1775500200",
+        "temperature_c": 21.6,
+        "humidity_percent": 64.41,
+        "wind_speed_mps": 2.389,
+        "wind_direction_deg": 261.9,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 0.0
+      },
+      {
+        "timestamp": "1775503800",
+        "temperature_c": 21.0,
+        "humidity_percent": 69.01,
+        "wind_speed_mps": 2.389,
+        "wind_direction_deg": 258.9,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 0.0
+      },
+      {
+        "timestamp": "1775507400",
+        "temperature_c": 20.4,
+        "humidity_percent": 73.47,
+        "wind_speed_mps": 2.306,
+        "wind_direction_deg": 257.9,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 0.0
+      },
+      {
+        "timestamp": "1775511000",
+        "temperature_c": 20.1,
+        "humidity_percent": 75.81,
+        "wind_speed_mps": 2.111,
+        "wind_direction_deg": 259.5,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 0.0
+      },
+      {
+        "timestamp": "1775514600",
+        "temperature_c": 19.6,
+        "humidity_percent": 78.7,
+        "wind_speed_mps": 2.194,
+        "wind_direction_deg": 261.9,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 0.0
+      },
+      {
+        "timestamp": "1775518200",
+        "temperature_c": 19.3,
+        "humidity_percent": 80.18,
+        "wind_speed_mps": 2.0,
+        "wind_direction_deg": 255.9,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 0.0
+      },
+      {
+        "timestamp": "1775521800",
+        "temperature_c": 19.0,
+        "humidity_percent": 81.7,
+        "wind_speed_mps": 1.889,
+        "wind_direction_deg": 267.7,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 0.0
+      },
+      {
+        "timestamp": "1775525400",
+        "temperature_c": 18.9,
+        "humidity_percent": 81.68,
+        "wind_speed_mps": 1.806,
+        "wind_direction_deg": 262.2,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 0.0
+      },
+      {
+        "timestamp": "1775529000",
+        "temperature_c": 20.2,
+        "humidity_percent": 74.38,
+        "wind_speed_mps": 1.694,
+        "wind_direction_deg": 269.2,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 72.0
+      },
+      {
+        "timestamp": "1775532600",
+        "temperature_c": 22.6,
+        "humidity_percent": 59.05,
+        "wind_speed_mps": 2.194,
+        "wind_direction_deg": 288.1,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 305.0
+      },
+      {
+        "timestamp": "1775536200",
+        "temperature_c": 25.0,
+        "humidity_percent": 46.96,
+        "wind_speed_mps": 2.5,
+        "wind_direction_deg": 309.5,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 552.0
+      },
+      {
+        "timestamp": "1775539800",
+        "temperature_c": 27.6,
+        "humidity_percent": 37.72,
+        "wind_speed_mps": 3.111,
+        "wind_direction_deg": 323.8,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 763.0
+      },
+      {
+        "timestamp": "1775543400",
+        "temperature_c": 29.9,
+        "humidity_percent": 31.3,
+        "wind_speed_mps": 3.806,
+        "wind_direction_deg": 333.7,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 918.0
+      },
+      {
+        "timestamp": "1775547000",
+        "temperature_c": 31.7,
+        "humidity_percent": 26.25,
+        "wind_speed_mps": 4.194,
+        "wind_direction_deg": 332.1,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 1001.0
+      },
+      {
+        "timestamp": "1775550600",
+        "temperature_c": 32.6,
+        "humidity_percent": 22.09,
+        "wind_speed_mps": 5.194,
+        "wind_direction_deg": 321.7,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 1011.0
+      },
+      {
+        "timestamp": "1775554200",
+        "temperature_c": 32.9,
+        "humidity_percent": 21.58,
+        "wind_speed_mps": 5.806,
+        "wind_direction_deg": 320.5,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 944.0
+      },
+      {
+        "timestamp": "1775557800",
+        "temperature_c": 32.8,
+        "humidity_percent": 22.3,
+        "wind_speed_mps": 5.889,
+        "wind_direction_deg": 318.5,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 802.0
+      },
+      {
+        "timestamp": "1775561400",
+        "temperature_c": 32.3,
+        "humidity_percent": 24.53,
+        "wind_speed_mps": 6.306,
+        "wind_direction_deg": 313.9,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 601.0
+      },
+      {
+        "timestamp": "1775565000",
+        "temperature_c": 30.9,
+        "humidity_percent": 28.79,
+        "wind_speed_mps": 7.194,
+        "wind_direction_deg": 304.1,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 362.0
+      },
+      {
+        "timestamp": "1775568600",
+        "temperature_c": 28.5,
+        "humidity_percent": 36.74,
+        "wind_speed_mps": 5.889,
+        "wind_direction_deg": 295.0,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 121.0
+      },
+      {
+        "timestamp": "1775572200",
+        "temperature_c": 26.6,
+        "humidity_percent": 42.16,
+        "wind_speed_mps": 4.306,
+        "wind_direction_deg": 292.7,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 0.0
+      },
+      {
+        "timestamp": "1775575800",
+        "temperature_c": 25.3,
+        "humidity_percent": 46.74,
+        "wind_speed_mps": 3.5,
+        "wind_direction_deg": 289.7,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 0.0
+      },
+      {
+        "timestamp": "1775579400",
+        "temperature_c": 24.4,
+        "humidity_percent": 50.95,
+        "wind_speed_mps": 3.194,
+        "wind_direction_deg": 288.2,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 0.0
+      },
+      {
+        "timestamp": "1775583000",
+        "temperature_c": 23.6,
+        "humidity_percent": 54.16,
+        "wind_speed_mps": 2.889,
+        "wind_direction_deg": 281.1,
+        "cloud_cover_percent": 0.0,
+        "solar_radiation_wm2": 0.0
+      }
+    ],
+    "geocoding": {
+      "geocoded": true,
+      "status": "resolved",
+      "message": "Coordinates resolved from location name.",
+      "name": "Pune",
+      "country": "India",
+      "admin1": "Maharashtra",
+      "latitude": 18.51957,
+      "longitude": 73.85535
+    },
+    "environmental_metrics": {
+      "heat_exposure_score": 0.356,
+      "solar_exposure_score": 0.388,
+      "ventilation_potential_score": 1.0,
+      "avg_temp": 25.283,
+      "peak_temp": 32.9,
+      "avg_wind_speed": 3.531,
+      "dominant_wind_direction": 225.0,
+      "avg_solar_radiation": 310.5,
+      "peak_solar_radiation": 1011.0,
+      "avg_cloud_cover": 0.0
+    }
+  },
+  "baseline_results": {
+    "summary": "Climate-informed heuristic baseline (not simulation-grade).",
+    "energy_risk": 0.548,
+    "daylight_potential": 0.583,
+    "ventilation_potential": 0.72,
+    "climate_provider": "visualcrossing",
+    "heat_exposure_score": 0.356,
+    "solar_exposure_score": 0.388,
+    "climate_ventilation_score": 1.0,
+    "narrative_insight": "Current baseline is relatively balanced; refine trade-offs against stakeholder priorities."
+  },
+  "mitigation_options": []
+}

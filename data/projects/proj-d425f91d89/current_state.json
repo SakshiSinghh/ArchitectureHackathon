@@ -1,0 +1,53 @@
+{
+  "project_name": "Phase4 Live Workspace",
+  "input_mode": "manual_form",
+  "brief_text": "Iterative testing",
+  "site": {
+    "location_name": null,
+    "latitude": null,
+    "longitude": null,
+    "climate_notes": null
+  },
+  "building": {
+    "building_type": null,
+    "width_m": null,
+    "depth_m": null,
+    "height_m": null,
+    "floors": null,
+    "orientation_deg": null,
+    "window_to_wall_ratio": null,
+    "geometry_notes": null
+  },
+  "constraints": {
+    "hard_constraints": [],
+    "soft_constraints": []
+  },
+  "priorities": {
+    "energy": 0.25,
+    "daylight": 0.2,
+    "ventilation": 0.2,
+    "cost": 0.2,
+    "aesthetics": 0.15
+  },
+  "provenance": {
+    "user_provided_fields": [],
+    "inferred_fields": [],
+    "defaulted_fields": [],
+    "unresolved_fields": []
+  },
+  "assumptions": [],
+  "validation_issues": [],
+  "climate_context": {},
+  "baseline_results": {
+    "summary": "Not computed yet",
+    "energy_risk": null,
+    "daylight_potential": null,
+    "ventilation_potential": null,
+    "climate_provider": null,
+    "heat_exposure_score": null,
+    "solar_exposure_score": null,
+    "climate_ventilation_score": null,
+    "narrative_insight": null
+  },
+  "mitigation_options": []
+}

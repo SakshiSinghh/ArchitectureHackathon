@@ -10,16 +10,23 @@ class CompensationAgent:
 
     def run(self, project: ProjectState) -> list[dict]:
         baseline = project.baseline_results
+        climate_metrics = project.climate_context.get("environmental_metrics") or {}
+        heat_exposure = float(climate_metrics.get("heat_exposure_score") or 0.5)
+        solar_exposure = float(climate_metrics.get("solar_exposure_score") or 0.5)
+        ventilation_context = float(climate_metrics.get("ventilation_potential_score") or 0.5)
         options: list[dict] = []
 
-        if (baseline.energy_risk or 0) >= 0.6:
+        if (baseline.energy_risk or 0) >= 0.6 or heat_exposure >= 0.65 or solar_exposure >= 0.65:
             options.append(
                 {
                     "title": "Add external shading on high-exposure facade",
                     "description": "Increase shading depth and prioritize west/south facade control.",
                     "expected_benefit": "Reduces cooling pressure and peak heat gains.",
                     "tradeoff_note": "Adds facade complexity and moderate cost increase.",
-                    "rationale": "Triggered by high baseline energy risk.",
+                    "rationale": (
+                        "Triggered by elevated heat/solar exposure with high cooling-pressure baseline signals "
+                        f"(heat={heat_exposure:.2f}, solar={solar_exposure:.2f})."
+                    ),
                     "energy_gain": 0.28,
                     "daylight_gain": -0.05,
                     "ventilation_gain": 0.02,
@@ -51,7 +58,10 @@ class CompensationAgent:
                     "description": "Adjust core/wall openings and reduce deep-plan obstruction where feasible.",
                     "expected_benefit": "Improves passive ventilation potential.",
                     "tradeoff_note": "May constrain rentable floor efficiency.",
-                    "rationale": "Triggered by weak baseline ventilation potential.",
+                    "rationale": (
+                        "Triggered by weak ventilation potential from climate+geometry context "
+                        f"(ventilation={ventilation_context:.2f})."
+                    ),
                     "energy_gain": 0.1,
                     "daylight_gain": 0.08,
                     "ventilation_gain": 0.25,

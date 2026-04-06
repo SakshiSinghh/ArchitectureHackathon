@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from backend.api.routes.analysis import router as analysis_router
 from backend.api.routes.intake import router as intake_router
+from backend.api.routes.projects import router as projects_router
 from backend.core.config import settings
 
 
@@ -13,6 +15,17 @@ app = FastAPI(
     title="Enviro Negotiator MVP API",
     version="0.1.0",
     description="Phase 0 API skeleton for structured intake and baseline analysis.",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -29,3 +42,4 @@ def health() -> dict[str, str | bool]:
 
 app.include_router(intake_router, prefix="/api/v1/intake", tags=["intake"])
 app.include_router(analysis_router, prefix="/api/v1/analysis", tags=["analysis"])
+app.include_router(projects_router, prefix="/api/v1/projects", tags=["projects"])
