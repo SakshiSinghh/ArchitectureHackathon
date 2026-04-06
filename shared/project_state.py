@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -65,6 +65,10 @@ class BaselineResults(BaseModel):
     energy_risk: float | None = None
     daylight_potential: float | None = None
     ventilation_potential: float | None = None
+    climate_provider: str | None = None
+    heat_exposure_score: float | None = None
+    solar_exposure_score: float | None = None
+    climate_ventilation_score: float | None = None
     narrative_insight: str | None = None
 
 
@@ -77,6 +81,30 @@ class MitigationOption(BaseModel):
     tradeoff_note: str
 
 
+class ParsedConstraintItem(BaseModel):
+    """Single interpreted constraint candidate from free-text parsing."""
+
+    source_text: str
+    normalized_key: str
+    normalized_value: str | bool | float | int | None = None
+    confidence: float = 0.0
+    rationale: str = ""
+    status: Literal["proposed", "accepted", "rejected", "edited"] = "proposed"
+
+
+class ParsedConstraints(BaseModel):
+    """Structured parsing result with transparency metadata."""
+
+    extracted_items: list[ParsedConstraintItem] = Field(default_factory=list)
+    unresolved_items: list[str] = Field(default_factory=list)
+    confidence_label: Literal["low", "medium", "high"] = "low"
+    confidence_score: float = 0.0
+    parser_provider: str = "none"
+    parser_mode: Literal["llm", "heuristic", "fallback", "none"] = "none"
+    notes: list[str] = Field(default_factory=list)
+    conflict_warnings: list[str] = Field(default_factory=list)
+
+
 class ProjectState(BaseModel):
     """Canonical state used across intake, analysis, and agent steps."""
 
@@ -85,13 +113,20 @@ class ProjectState(BaseModel):
     brief_text: str | None = None
     site: Site = Field(default_factory=Site)
     building: Building = Field(default_factory=Building)
-    constraints: dict[str, list[str]] = Field(
-        default_factory=lambda: {"hard_constraints": [], "soft_constraints": []}
+    constraints: dict[str, Any] = Field(
+        default_factory=lambda: {
+            "hard_constraints": [],
+            "soft_constraints": [],
+            "free_text": "",
+            "structured_enabled": True,
+            "notes": None,
+        }
     )
     priorities: Priorities = Field(default_factory=Priorities)
     provenance: Provenance = Field(default_factory=Provenance)
     assumptions: list[str] = Field(default_factory=list)
     validation_issues: list[ValidationIssue] = Field(default_factory=list)
-    climate_context: dict[str, str | float] = Field(default_factory=dict)
+    parsed_constraints: ParsedConstraints = Field(default_factory=ParsedConstraints)
+    climate_context: dict[str, Any] = Field(default_factory=dict)
     baseline_results: BaselineResults = Field(default_factory=BaselineResults)
     mitigation_options: list[MitigationOption] = Field(default_factory=list)

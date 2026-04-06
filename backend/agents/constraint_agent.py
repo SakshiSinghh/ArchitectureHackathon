@@ -9,12 +9,21 @@ class ConstraintAgent:
     """Calculates deterministic penalties from hard constraints."""
 
     def run(self, project: ProjectState) -> dict[str, float | str]:
-        count = len(project.constraints.get("hard_constraints", []))
-        energy_penalty = min(0.25, 0.04 * count)
-        daylight_penalty = min(0.2, 0.03 * count)
-        ventilation_penalty = min(0.15, 0.02 * count)
+        climate_metrics = project.climate_context.get("environmental_metrics") or {}
+        heat_exposure = float(climate_metrics.get("heat_exposure_score") or 0.5)
+        solar_exposure = float(climate_metrics.get("solar_exposure_score") or 0.5)
+        ventilation_context = float(climate_metrics.get("ventilation_potential_score") or 0.5)
 
-        for constraint in project.constraints.get("hard_constraints", []):
+        effective_constraints = project.constraints.get("effective_hard_constraints") or project.constraints.get(
+            "hard_constraints", []
+        )
+
+        count = len(effective_constraints)
+        energy_penalty = min(0.25, 0.04 * count) + 0.06 * heat_exposure + 0.04 * solar_exposure
+        daylight_penalty = min(0.2, 0.03 * count)
+        ventilation_penalty = min(0.15, 0.02 * count) + (0.04 if ventilation_context < 0.4 else 0.0)
+
+        for constraint in effective_constraints:
             normalized = constraint.lower()
             if "max height" in normalized or "setback" in normalized:
                 daylight_penalty += 0.03
@@ -33,5 +42,8 @@ class ConstraintAgent:
             "energy_penalty": round(energy_penalty, 3),
             "daylight_penalty": round(daylight_penalty, 3),
             "ventilation_penalty": round(ventilation_penalty, 3),
-            "note": "Constraint penalties are heuristic and derived from hard-constraint intensity/keywords.",
+            "note": (
+                "Constraint penalties are heuristic and reflect hard-constraint intensity plus climate pressure "
+                f"(heat={heat_exposure:.2f}, solar={solar_exposure:.2f}, ventilation={ventilation_context:.2f})."
+            ),
         }

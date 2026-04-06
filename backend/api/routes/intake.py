@@ -4,7 +4,14 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException
 
-from backend.schemas.api_models import IntakeRequest, IntakeResponse, ParseMetadata
+from backend.schemas.api_models import (
+    ConstraintInterpretRequest,
+    ConstraintInterpretResponse,
+    IntakeRequest,
+    IntakeResponse,
+    ParseMetadata,
+)
+from backend.services.constraint_parsing_service import interpret_constraints
 from backend.services.intake_service import parse_intake
 from backend.services.validation_service import validate_project_state
 
@@ -39,5 +46,16 @@ def parse(request: IntakeRequest) -> IntakeResponse:
                 unparsed_items=parse_result.unparsed_items,
             ),
         )
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+
+
+@router.post("/interpret-constraints", response_model=ConstraintInterpretResponse)
+def interpret(request: ConstraintInterpretRequest) -> ConstraintInterpretResponse:
+    """Interpret free-text constraints into normalized structured candidates."""
+
+    try:
+        parsed = interpret_constraints(request.project_state, preferred_provider=request.preferred_provider)
+        return ConstraintInterpretResponse(parsed_constraints=parsed)
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error)) from error

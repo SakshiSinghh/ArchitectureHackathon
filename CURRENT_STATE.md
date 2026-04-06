@@ -1,167 +1,217 @@
-# Current Application State (Phase 2)
+# Current Application State (Phase 5)
 
-Last updated: 2026-04-04
+Last updated: 2026-04-07
 
 ## 1) Snapshot
-The repository is in **Phase 2 (credible agentic MVP)** status.
+The repository is in Phase 5 status: project workspace plus interpreted free-text constraint loop.
 
 What is currently true:
-- Web-first architecture remains in place (FastAPI backend + Streamlit frontend).
-- Frontend and backend are fully wired for intake, baseline, and agent-review stages.
-- Inputs normalize into canonical `ProjectState` with explicit provenance categories.
-- Human-in-the-loop confirmation remains required before baseline analysis.
-- Mock/demo mode still works with no API keys.
-- Agent behavior is visible and deterministic (constraint → compensation → trade-off).
-- Full test suite currently passes.
+- FastAPI backend remains the source of truth.
+- Next.js frontend in web/ is now the main product-facing UI.
+- Streamlit frontend remains available as fallback/debug tooling.
+- Web frontend uses a centralized typed API service layer mapped to existing backend routes.
+- Climate provider architecture from Phase 3 remains active.
+- The app now supports projects as first-class persisted workspaces.
+- Current design state is editable and saveable per project.
+- Baseline and agent review can be rerun repeatedly as negotiation cycles.
+- Run snapshots are stored and history is visible.
+- A simple What Changed comparison is available between the latest and previous run.
+- Free-text constraints can now be interpreted into structured candidates with confidence and unresolved tracking.
+- Users can accept, edit, or reject interpreted constraints in onboarding and workspace flows.
+- Accepted/edited interpreted constraints are persisted and merged into effective hard-constraint context with transparent precedence.
+- Full automated test suite passes.
 
 ## 2) Implemented Scope
 
-### Backend (FastAPI)
-Implemented in `backend/`:
+### Backend API
 - Health:
-  - `GET /health`
+  - GET /health
 - Intake:
-  - `GET /api/v1/intake/ping`
-  - `POST /api/v1/intake/parse`
+  - GET /api/v1/intake/ping
+  - POST /api/v1/intake/parse
+  - POST /api/v1/intake/interpret-constraints
 - Analysis:
-  - `GET /api/v1/analysis/ping`
-  - `POST /api/v1/analysis/baseline`
-  - `POST /api/v1/analysis/agent-review`
+  - GET /api/v1/analysis/ping
+  - POST /api/v1/analysis/baseline
+  - POST /api/v1/analysis/agent-review
+- Projects:
+  - GET /api/v1/projects
+  - POST /api/v1/projects
+  - GET /api/v1/projects/{project_id}
+  - PUT /api/v1/projects/{project_id}
+  - POST /api/v1/projects/{project_id}/runs
+  - GET /api/v1/projects/{project_id}/runs
 
-Behavior:
-- Intake supports:
-  - `manual_form`
-  - `pasted_brief`
-  - `uploaded_json`
-- Intake response includes:
-  - `project_state`
-  - `validation_issues`
-  - `assumptions`
-  - `provenance`
-  - `parse_metadata` (`input_mode`, parser note, confidence, unparsed items)
-- Baseline endpoint:
-  - requires `confirmed=true`
-  - computes heuristic baseline + climate context
-- Agent-review endpoint:
-  - requires baseline-computed project state
-  - returns baseline metrics, constrained metrics, deltas, penalty summary,
-    ranked mitigation options, and top-option reason
+### File-backed persistence
+Implemented through backend/services/project_service.py.
 
-### Frontend (Streamlit)
-Implemented in `frontend/app.py`:
-- **Step A**: input mode selection.
-- **Step B**: raw input and intake submission.
-- **Step C**: normalized-state review (site, building, constraints, priorities).
-- Validation issues shown by severity.
-- Assumptions and provenance shown explicitly.
-- Optional JSON edit/resubmit of normalized state.
-- **Step D**: explicit confirmation gate.
-- **Step E**: run baseline.
-- **Step F**: review baseline metrics + context.
-- **Step G**: run explicit agent review.
-- **Step H**: inspect deltas and ranked mitigation options.
+Default storage location:
+- data/projects
 
-### Shared Canonical Schema
-Implemented in `shared/project_state.py`:
-- Canonical `ProjectState` includes:
-  - site
-  - building
-  - constraints
-  - priorities
-  - provenance
-  - assumptions
-  - validation issues
-  - climate context
-  - baseline results
-  - mitigation options
+Per-project structure:
+- project_meta.json
+- current_state.json
+- runs/{run_id}.json
 
-Provenance now tracks:
-- `user_provided_fields`
-- `inferred_fields`
-- `defaulted_fields`
-- `unresolved_fields`
+### Iteration model
+Each run snapshot captures:
+- run_id and timestamp
+- input_state used for that run
+- baseline_state after climate-informed baseline pipeline
+- agent_review response
+- top recommendation
+- climate provider and source tier metadata
 
-### Services and Agents
-Core services/agents now provide:
-- Stronger intake parsing and normalization metadata
-- Stronger validation checks (coords, geometry plausibility, priorities quality, constraint conflicts)
-- Deterministic baseline scoring
-- Explicit post-baseline agent-review pipeline:
-  - Constraint Agent: heuristic penalties
-  - Compensation Agent: up to 3 grounded mitigation options
-  - Trade-off Agent: priority-weighted ranking + score rationale
+What Changed support captures:
+- changed input fields (flattened keys)
+- changed baseline metrics
+- changed top recommendation
+- changed agent metric deltas
 
-## 3) Configuration and Secrets
+### Frontend workspace UX (main)
+web/ (Next.js) now provides the primary onboarding + workspace experience:
+- Sidebar:
+  - project listing and selection
+  - run history selection
+- Main area:
+  1. Guided onboarding and project creation
+  2. Design state editing
+  3. Constraint editing (structured + free-text)
+  4. Save current state
+  5. Run baseline + agent review + persist run snapshot
+  6. Results and recommendations panel
+  7. What Changed view
+- API calls are centralized in web/lib/api-client.ts and reused across onboarding/workspace components.
 
-### Environment files
-`.env.example` includes empty placeholders:
-- `ANTHROPIC_API_KEY=`
-- `OPENAI_API_KEY=`
-- `OPEN_METEO_BASE_URL=`
-- `APP_ENV=`
-- `MOCK_MODE=`
+### Frontend fallback/debug UX
+- frontend/app.py (Streamlit) remains available for fallback workflow and backend contract debugging.
 
-### Mock mode
-- If keys are missing, app resolves to mock/demo behavior.
-- No real keys are required for current end-to-end workflow.
+### Constraint input modes
+- Structured mode:
+  - constraints.hard_constraints
+  - constraints.soft_constraints
+- Written mode:
+  - constraints.free_text
+- Interpreted mode:
+  - project_state.parsed_constraints.extracted_items
+  - item statuses: proposed, accepted, edited, rejected
+  - unresolved_items, confidence_label/score, parser_provider/mode, notes, conflict_warnings
+- Both manual structured constraints and interpreted constraints can be used together and are persisted in project state.
 
-## 4) Testing and Verification
+Precedence and conflict behavior:
+- Manual hard constraints remain authoritative.
+- Accepted/edited parsed items are appended as supplemental effective hard constraints.
+- Effective analysis context is exposed as constraints.effective_hard_constraints.
+- Conflicts are surfaced in parsed_constraints.conflict_warnings and assumptions.
 
-### Test coverage currently present
-- `tests/test_health.py`
-- `tests/test_intake.py`
-- `tests/test_validation.py`
-- `tests/test_analysis.py`
-- `tests/test_provenance.py`
+## 3) Climate Layer Status
+Still active and integrated into every run cycle:
+- Visual Crossing primary weather provider
+- Open-Meteo geocoding
+- Open-Meteo weather fallback
+- Mock final fallback
 
-### Latest verification result
-- `pytest -q` result: **12 passed**
-- Git publishing check: **main pushed to origin**
+Climate transparency fields remain exposed:
+- climate_context.provider
+- climate_context.source_tier
 
-## 5) Repository Status (High-Level)
-Top-level files:
-- `README.md`
-- `CURRENT_STATE.md`
-- `requirements.txt`
-- `.gitignore`
-- `.env.example`
+## 4) Configuration and Secrets
+- .env is local-only and gitignored.
+- .env.example remains template-only (no real keys).
 
-Top-level folders:
-- `backend/`
-- `frontend/`
-- `shared/`
-- `tests/`
+Supported env vars include:
+- APP_ENV
+- MOCK_MODE
+- VISUAL_CROSSING_API_KEY
+- OPEN_METEO_BASE_URL
+- PROJECTS_DATA_DIR
+- optional LLM keys: ANTHROPIC_API_KEY and OPENAI_API_KEY
 
-## 6) Intentional MVP Simplifications
-Still deliberate for hackathon safety:
-- No Rhino/IFC/BIM parsing.
-- No simulation engine.
-- No database/auth/deployment pipeline.
-- No mandatory external APIs.
-- No autonomous optimization loop.
+## 5) LLM and Constraint Interpretation Status
 
-## 7) Known Limitations (Current)
-- Baseline, penalty, and ranking outputs are heuristic and deterministic.
-- Pasted-brief parsing is intentionally lightweight and uncertainty-prone.
-- UI normalized-state editing is JSON-based (powerful but not guided).
-- Option ranking uses simple weighted math rather than calibrated empirical models.
+### Implemented now
+- Centralized config exposes both LLM keys via backend/core/config.py settings.
+- Local .env loading through config is active and does not override process env.
+- backend/services/llm_service.py now provides:
+  - key presence detection helpers
+  - provider availability/selection logic
+  - provider-backed free-text constraint interpretation requests (Anthropic/OpenAI)
+  - strict JSON extraction/validation for parsed constraint outputs
+- backend/services/constraint_parsing_service.py now provides:
+  - LLM-first interpretation path
+  - deterministic heuristic fallback path
+  - transparent confidence/unresolved/conflict metadata
+  - merge logic for effective hard constraints
 
-## 8) Run Instructions (Current)
+### Available but scoped
+- Live provider-backed calls are currently scoped to free-text constraint interpretation only.
+- Intake mode parsing, baseline narrative generation, and recommendation summarization remain deterministic.
+
+## 6) Testing and Verification
+Current tests include:
+- tests/test_health.py
+- tests/test_intake.py
+- tests/test_validation.py
+- tests/test_analysis.py
+- tests/test_provenance.py
+- tests/test_climate_layer.py
+- tests/test_config_loading.py
+- tests/test_llm_readiness.py
+- tests/test_constraint_parsing.py
+- tests/test_constraint_interpretation.py
+- tests/test_projects.py
+- tests/conftest.py
+
+Latest verification:
+- pytest -q result: pending current verification run
+- web build result: npm run build passed
+- Live smoke checks completed for:
+  - backend startup
+  - web frontend startup
+  - onboarding-equivalent project creation
+  - project create/list/get/update
+  - run creation and history retrieval
+  - iterative rerun diff presence
+  - free-text constraint persistence in run input state
+  - interpretation endpoint and parsed-constraint persistence
+
+## 7) Current Product Boundaries
+Intentionally not implemented in this phase:
+- auth/accounts
+- cloud database
+- collaboration/multiplayer
+- canvas-style editor
+- Rhino/IFC/BIM ingestion
+- full simulation engine
+- autonomous agent loops
+
+## 8) Known Limitations
+- Persistence is local file-based only.
+- Diff view is intentionally simple and key-based.
+- Environmental scoring remains heuristic.
+- No branchable scenario tree yet (single current state per project).
+- No conflict resolution for concurrent edits.
+- LLM integration remains readiness-only; no live provider-backed text generation in main workflows.
+- Interpretation quality is bounded by provider response quality or heuristic coverage.
+
+## 9) Run Instructions
 Backend:
-- `uvicorn backend.main:app --reload`
+- uvicorn backend.main:app --reload
 
-Frontend:
-- `streamlit run frontend/app.py`
+Main frontend:
+- cd web
+- npm install
+- npm run dev
+
+Fallback frontend:
+- streamlit run frontend/app.py
 
 Tests:
-- `pytest -q`
+- pytest -q
 
-## 9) Risk Notes
-Main near-term risk is perceived overconfidence from heuristic outputs. Current implementation reduces this risk by making provenance, validation, parser confidence, and post-baseline deltas explicit in both API contracts and UI.
-
-## 10) Repository Publishing Status
-- Git initialized and initial commit created.
-- Default branch renamed to `main`.
-- Remote configured: `origin = https://github.com/AlvieKun/ArchitectureHackathon.git`.
-- Push status: `main` successfully pushed and tracking `origin/main`.
-- GitHub web check confirms key files are visible and `README.md` renders correctly.
+## 10) Next Suggested Phase
+Scenario branching and comparative decision views:
+- multiple named alternatives per project
+- side-by-side run comparison
+- trend charts across runs
+- stronger climate confidence metadata in UI

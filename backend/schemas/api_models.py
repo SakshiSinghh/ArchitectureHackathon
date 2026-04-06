@@ -6,7 +6,13 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
-from shared.project_state import InputMode, ProjectState, Provenance, ValidationIssue
+from shared.project_state import (
+    InputMode,
+    ParsedConstraints,
+    ProjectState,
+    Provenance,
+    ValidationIssue,
+)
 
 
 class IntakeRequest(BaseModel):
@@ -91,3 +97,16 @@ class AgentReviewResponse(BaseModel):
     penalty_summary: str
     ranked_options: list[RankedMitigation]
     top_option_reason: str
+
+
+class ConstraintInterpretRequest(BaseModel):
+    """Request payload for free-text constraint interpretation."""
+
+    project_state: ProjectState
+    preferred_provider: str | None = None
+
+
+class ConstraintInterpretResponse(BaseModel):
+    """Response payload for interpreted constraint candidates."""
+
+    parsed_constraints: ParsedConstraints
