@@ -130,3 +130,27 @@ class ProjectState(BaseModel):
     climate_context: dict[str, Any] = Field(default_factory=dict)
     baseline_results: BaselineResults = Field(default_factory=BaselineResults)
     mitigation_options: list[MitigationOption] = Field(default_factory=list)
+    floor_plan_analysis: FloorPlanAnalysis | None = None
+
+
+class RoomAnalysis(BaseModel):
+    """Environmental analysis for a single room extracted from a floor plan."""
+
+    room_name: str
+    facade_orientations: list[str] = Field(default_factory=list)
+    is_external: bool = False
+    environmental_issues: list[str] = Field(default_factory=list)
+    suggestions: list[str] = Field(default_factory=list)
+
+
+class FloorPlanAnalysis(BaseModel):
+    """Structured output from AI-assisted floor plan review."""
+
+    primary_orientation_deg: float | None = None
+    north_assumption: str = "top of image assumed as north"
+    rooms: list[RoomAnalysis] = Field(default_factory=list)
+    overall_issues: list[str] = Field(default_factory=list)
+    overall_suggestions: list[str] = Field(default_factory=list)
+    confidence: Literal["low", "medium", "high"] = "low"
+    analysis_notes: str | None = None
+    provider: str = "none"

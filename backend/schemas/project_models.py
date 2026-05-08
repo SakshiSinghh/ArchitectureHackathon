@@ -8,7 +8,7 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 from backend.schemas.api_models import AgentReviewResponse
-from shared.project_state import ProjectState
+from shared.project_state import Building, FloorPlanAnalysis, ProjectState
 
 
 class ProjectMeta(BaseModel):
@@ -100,3 +100,13 @@ class ProjectsListResponse(BaseModel):
     """Top-level list response for project workspace sidebar."""
 
     projects: list[ProjectSummaryResponse] = Field(default_factory=list)
+
+
+
+
+class FloorPlanUploadResponse(BaseModel):
+    """Response returned after a floor plan is uploaded and analysed."""
+
+    project_id: str
+    floor_plan_analysis: FloorPlanAnalysis
+    updated_building: Building
