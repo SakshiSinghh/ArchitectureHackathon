@@ -1,27 +1,12 @@
-"
-ArchEnv GHPython Component — Level 1 (Hackathon MVP)
-=====================================================
-Paste this entire script into a GHPython component.
-
-Add these input params on the component (right-click > Inputs):
-  orientation_deg   float   building orientation in degrees (0 = North)
-  location          str     city name e.g. "Pune"
-  building_type     str     "office" / "residential" / "mixed_use"
-  run               bool    toggle True to call the backend
-
-Add these output params on the component (right-click > Outputs):
-  energy_risk
-  daylight_potential
-  ventilation_potential
-  best_orientation
-  best_score
-  narrative
-  all_options
-"
+# ArchEnv GHPython Component - Level 1 (Hackathon MVP)
+# ---------------------------------------------------------
+# Inputs:  orientation_deg (float), location (str),
+#          building_type (str), run (bool)
+# Outputs: energy_risk, daylight_potential, ventilation_potential,
+#          best_orientation, best_score, narrative, all_options
 
 import json
 
-# IronPython (Rhino 7) uses urllib2; CPython (Rhino 8) uses urllib.request
 try:
     import urllib2 as _urllib
     def _post(url, data):
@@ -35,12 +20,10 @@ except ImportError:
         with _urllib.urlopen(req, timeout=10) as r:
             return json.loads(r.read().decode("utf-8"))
 
-# ---------- defaults ----------
 _deg   = float(orientation_deg) if orientation_deg is not None else 0.0
 _loc   = str(location)          if location         else "Pune"
 _btype = str(building_type)     if building_type    else "office"
 
-# ---------- reset outputs ----------
 energy_risk = daylight_potential = ventilation_potential = None
 best_orientation = narrative = all_options = None
 best_score = None
@@ -99,21 +82,18 @@ else:
         result = _post("http://localhost:8000/api/v1/analysis/orientation-options", payload)
         options = result.get("options", [])
 
-        # rank 1 = best option
-        top = next((o for o in options if o["rank"] == 1), None) or (options[0] if options else None)
+        top = next((o for o in options if o["rank"] == 1), options[0] if options else None)
         if top:
             best_orientation = top["label"]
             best_score       = round(top["composite_score"], 4)
             narrative        = top["narrative"]
 
-        # scores for the user's current orientation
         current = next((o for o in options if o.get("is_current")), top)
         if current:
             energy_risk           = round(current["energy_risk"],           3)
             daylight_potential    = round(current["daylight_potential"],    3)
             ventilation_potential = round(current["ventilation_potential"], 3)
 
-        # formatted summary of all 3 options
         lines = ["=== Orientation Options for " + _loc + " ==="]
         for o in sorted(options, key=lambda x: x["rank"]):
             tag = "  [YOUR CURRENT]" if o.get("is_current") else ""
