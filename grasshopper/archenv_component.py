@@ -104,8 +104,7 @@ else:
                 )
             )
             lines.append("     " + o["narrative"])
-        all_options = "
-".join(lines)
+        all_options = chr(10).join(lines)
 
     except Exception as ex:
         all_options = "ERROR: " + str(ex)
