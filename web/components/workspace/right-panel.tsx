@@ -62,7 +62,7 @@ export function RightPanel({ state, review, diff, run }: RightPanelProps) {
         <h2 className="font-semibold">Insights</h2>
       </div>
 
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 min-h-0">
         <div className="space-y-4 p-4">
           {/* Baseline Metrics */}
           <Card>
