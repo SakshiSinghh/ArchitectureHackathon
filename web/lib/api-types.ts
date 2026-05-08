@@ -208,3 +208,21 @@ export type FloorPlanUploadResponse = {
   floor_plan_analysis: FloorPlanAnalysis
   updated_building: Building
 }
+
+export type OrientationOption = {
+  orientation_deg: number
+  label: string
+  rank: number
+  energy_risk: number
+  daylight_potential: number
+  ventilation_potential: number
+  composite_score: number
+  narrative: string
+  is_current: boolean
+}
+
+export type OrientationOptionsResponse = {
+  options: OrientationOption[]
+  recommended_orientation_deg: number
+  location: string | null
+}

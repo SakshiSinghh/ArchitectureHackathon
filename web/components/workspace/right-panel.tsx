@@ -12,13 +12,15 @@ import {
   ArrowRight,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import type { AgentReviewResponse, ProjectState, RunDiff, RunSnapshot } from "@/lib/api-types"
+import type { AgentReviewResponse, OrientationOptionsResponse, ProjectState, RunDiff, RunSnapshot } from "@/lib/api-types"
+import { OrientationOptions } from "./orientation-options"
 
 type RightPanelProps = {
   state: ProjectState | null
   review: AgentReviewResponse | null
   diff: RunDiff | null
   run: RunSnapshot | null
+  orientationOptions: OrientationOptionsResponse | null
 }
 
 function numeric(value: unknown): number {
@@ -26,7 +28,7 @@ function numeric(value: unknown): number {
   return Number.isFinite(parsed) ? parsed : 0
 }
 
-export function RightPanel({ state, review, diff, run }: RightPanelProps) {
+export function RightPanel({ state, review, diff, run, orientationOptions }: RightPanelProps) {
   const climateMetrics = (state?.climate_context?.environmental_metrics as Record<string, unknown>) || {}
 
   const baselineMetrics = [
@@ -104,6 +106,18 @@ export function RightPanel({ state, review, diff, run }: RightPanelProps) {
               })}
             </CardContent>
           </Card>
+
+          {/* Orientation Options */}
+          {orientationOptions && (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium">Orientation Options</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <OrientationOptions data={orientationOptions} />
+              </CardContent>
+            </Card>
+          )}
 
           {/* Top Recommendation */}
           <Card className="border-accent/50 bg-accent/5">

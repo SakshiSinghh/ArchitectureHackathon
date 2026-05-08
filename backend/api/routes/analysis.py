@@ -9,9 +9,11 @@ from backend.schemas.api_models import (
     AgentReviewResponse,
     BaselineRequest,
     BaselineResponse,
+    OrientationOptionsResponse,
 )
 from backend.services.agent_review_service import run_agent_review
 from backend.services.orchestration_service import run_baseline_pipeline
+from backend.services.orientation_service import get_orientation_options
 
 router = APIRouter()
 
@@ -49,3 +51,9 @@ def agent_review(request: AgentReviewRequest) -> AgentReviewResponse:
         )
 
     return run_agent_review(request.project_state)
+
+
+@router.post("/orientation-options", response_model=OrientationOptionsResponse)
+def orientation_options(request: AgentReviewRequest) -> OrientationOptionsResponse:
+    """Return top 3 scored orientation options for the current project state."""
+    return get_orientation_options(request.project_state)

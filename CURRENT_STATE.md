@@ -1,9 +1,9 @@
-# Current Application State (Phase 6)
+# Current Application State (Phase 7)
 
 Last updated: 2026-05-09
 
 ## 1) Snapshot
-The repository is in Phase 6 status: Review Mode floor plan upload added on top of the Phase 5 project workspace.
+The repository is in Phase 7 status: Orientation Options feature added on top of Phase 6 (Review Mode floor plan upload).
 
 What is currently true:
 - FastAPI backend remains the source of truth.
@@ -21,6 +21,9 @@ What is currently true:
 - Accepted/edited interpreted constraints are persisted and merged into effective hard-constraint context with transparent precedence.
 - Floor plan images and PDFs can be uploaded for AI-assisted environmental analysis (Review Mode).
 - Full automated test suite passes (45 tests).
+- Three scored orientation options are now generated after each Run Analysis.
+- SVG top-down building diagram (compass rose + colour-coded facades) renders per orientation.
+- Full automated test suite passes (54 tests).
 
 ## 2) Implemented Scope
 
@@ -35,6 +38,7 @@ What is currently true:
   - GET /api/v1/analysis/ping
   - POST /api/v1/analysis/baseline
   - POST /api/v1/analysis/agent-review
+  - POST /api/v1/analysis/orientation-options  <- NEW (Phase 7)
 - Projects:
   - GET /api/v1/projects
   - POST /api/v1/projects
@@ -104,6 +108,30 @@ web/ (Next.js) provides the primary onboarding + workspace experience.
 - Written mode: constraints.free_text
 - Interpreted mode: parsed_constraints.extracted_items with accept/edit/reject statuses
 - Both manual and interpreted constraints can be used together.
+
+
+### Orientation Options – Design Mode (Phase 7)
+Implemented through:
+- backend/services/orientation_service.py (new)
+- backend/schemas/api_models.py (OrientationOption, OrientationOptionsResponse schemas)
+- backend/api/routes/analysis.py (POST /orientation-options endpoint)
+- web/lib/api-types.ts (OrientationOption, OrientationOptionsResponse types)
+- web/lib/api-client.ts (getOrientationOptions() function)
+- web/components/workspace/orientation-diagram.tsx (new SVG component)
+- web/components/workspace/orientation-options.tsx (new 3-card component)
+- web/components/workspace/workspace.tsx (orientationOptions state + handleRun wiring)
+- web/components/workspace/right-panel.tsx (renders OrientationOptions in Insights panel)
+- tests/test_orientation.py (9 new tests, all pass)
+
+Feature behaviour:
+- After Run Analysis, the app sweeps all 8 compass orientations (N/NE/E/SE/S/SW/W/NW)
+- Climate data is fetched once and reused across all 8 sweep variants
+- Each variant gets a composite score: daylight*w + ventilation*w - energy_risk*w (weighted by project priorities)
+- Top 3 are returned; user's current orientation always included even if outside top 3
+- Each option shows: rank badge, label (e.g. "South-East"), orientation in degrees, composite score
+- SVG diagram shows compass rose, dashed sun arc (E to W through south), building rectangle rotated to the orientation, facade colours (west=orange, south=yellow, east=peach, north=blue)
+- Narrative sentence generated per option (LLM if available, heuristic fallback)
+- Orientation Options card appears in the right-panel Insights section
 
 ## 3) Climate Layer Status
 Still active and integrated into every run cycle:

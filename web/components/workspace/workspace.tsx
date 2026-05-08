@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import {
   createRun,
+  getOrientationOptions,
   getProject,
   getProjects,
   getRuns,
@@ -12,6 +13,7 @@ import {
 } from "@/lib/api-client"
 import type {
   AgentReviewResponse,
+  OrientationOptionsResponse,
   ProjectDetailResponse,
   ProjectState,
   RunDiff,
@@ -37,6 +39,7 @@ export function Workspace({ initialProjectId }: WorkspaceProps) {
   const [reviewPreview, setReviewPreview] = useState<AgentReviewResponse | null>(null)
   const [isSaving, setIsSaving] = useState(false)
   const [isRunning, setIsRunning] = useState(false)
+  const [orientationOptions, setOrientationOptions] = useState<OrientationOptionsResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const refreshProjects = useCallback(async () => {
@@ -121,6 +124,13 @@ export function Workspace({ initialProjectId }: WorkspaceProps) {
       const review = await runAgentReview(baseline.project_state)
       setReviewPreview(review)
 
+      try {
+        const orientOptions = await getOrientationOptions(baseline.project_state)
+        setOrientationOptions(orientOptions)
+      } catch (_) {
+        // orientation options are non-blocking
+      }
+
       const persisted = await createRun(projectId, draftState)
       setLatestDiff(persisted.diff_from_previous)
 
@@ -168,6 +178,7 @@ export function Workspace({ initialProjectId }: WorkspaceProps) {
           review={reviewPreview || selectedRun?.agent_review || null}
           diff={latestDiff}
           run={selectedRun}
+          orientationOptions={orientationOptions}
         />
       </div>
     </div>

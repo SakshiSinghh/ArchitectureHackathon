@@ -2,6 +2,7 @@ import type {
   AgentReviewResponse,
   ConstraintInterpretResponse,
   FloorPlanUploadResponse,
+  OrientationOptionsResponse,
   ProjectDetailResponse,
   ProjectRunsResponse,
   ProjectsListResponse,
@@ -118,4 +119,10 @@ export async function uploadFloorPlan(projectId: string, file: File): Promise<Fl
     body: formData,
   })
   return (await parseOrThrow(response)) as FloorPlanUploadResponse
+}
+
+export async function getOrientationOptions(projectState: ProjectState): Promise<OrientationOptionsResponse> {
+  return post<OrientationOptionsResponse>("/api/v1/analysis/orientation-options", {
+    project_state: projectState,
+  })
 }
