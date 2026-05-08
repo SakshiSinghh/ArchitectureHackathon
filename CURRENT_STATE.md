@@ -127,11 +127,13 @@ Supported env vars:
 ### Live LLM calls
 - Free-text constraint interpretation: Anthropic or OpenAI
 - Floor plan vision analysis: Anthropic only (claude-sonnet-4-6)
+- Baseline narrative insight (narrative_insight in BaselineResults): Anthropic or OpenAI
+- Agent review top-option reason and penalty summary: Anthropic or OpenAI
 
 ### Still deterministic
 - Intake mode parsing
-- Baseline narrative generation
-- Recommendation summarization
+- Heuristic metric scores (energy_risk, daylight_potential, ventilation_potential)
+- Mitigation option candidates and trade-off ranking
 
 ## 6) Testing and Verification
 Current tests:

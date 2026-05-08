@@ -56,9 +56,10 @@ class LLMService:
         return available[0]
 
     def generate(self, prompt: str, preferred_provider: str | None = None) -> str:
-        """Return safe fallback output until real provider SDK clients are added."""
+        """Generate text from a prompt using the best available provider.
 
-        _ = prompt  # Prompt is intentionally unused until provider SDK integration is enabled.
+        Falls back gracefully when no key is present or the call fails.
+        """
 
         if settings.mock_mode:
             return "[MOCK] Mitigation suggestions are running in demo mode."
@@ -67,10 +68,15 @@ class LLMService:
         if provider is None:
             return "[DETERMINISTIC] No LLM provider key detected; using deterministic behavior."
 
-        return (
-            f"[PLACEHOLDER:{provider}] Provider key detected but external client integration "
-            "is not enabled in this phase."
-        )
+        try:
+            if provider == "anthropic":
+                return self._anthropic_completion(prompt)
+            if provider == "openai":
+                return self._openai_completion(prompt)
+        except LLMServiceError:
+            pass
+
+        return "[FALLBACK] LLM call failed; using heuristic insight."
 
     def parse_constraints_json(self, free_text: str, preferred_provider: str | None = None) -> tuple[dict[str, Any], str]:
         """Interpret free-text constraints using available LLM provider.
