@@ -1,6 +1,7 @@
 import type {
   AgentReviewResponse,
   ConstraintInterpretResponse,
+  FloorPlanUploadResponse,
   ProjectDetailResponse,
   ProjectRunsResponse,
   ProjectsListResponse,
@@ -107,4 +108,14 @@ export async function interpretConstraints(projectState: ProjectState, preferred
     project_state: projectState,
     preferred_provider: preferredProvider || null,
   })
+}
+
+export async function uploadFloorPlan(projectId: string, file: File): Promise<FloorPlanUploadResponse> {
+  const formData = new FormData()
+  formData.append("file", file)
+  const response = await fetch(`${API_BASE_URL}/api/v1/projects/${projectId}/upload-plan`, {
+    method: "POST",
+    body: formData,
+  })
+  return (await parseOrThrow(response)) as FloorPlanUploadResponse
 }

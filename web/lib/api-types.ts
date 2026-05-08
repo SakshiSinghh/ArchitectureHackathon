@@ -183,3 +183,28 @@ export type RunExecutionResponse = {
   run: RunSnapshot
   diff_from_previous: RunDiff | null
 }
+
+export type RoomAnalysis = {
+  room_name: string
+  facade_orientations: string[]
+  is_external: boolean
+  environmental_issues: string[]
+  suggestions: string[]
+}
+
+export type FloorPlanAnalysis = {
+  primary_orientation_deg: number | null
+  north_assumption: string
+  rooms: RoomAnalysis[]
+  overall_issues: string[]
+  overall_suggestions: string[]
+  confidence: "low" | "medium" | "high"
+  analysis_notes: string | null
+  provider: string
+}
+
+export type FloorPlanUploadResponse = {
+  project_id: string
+  floor_plan_analysis: FloorPlanAnalysis
+  updated_building: Building
+}

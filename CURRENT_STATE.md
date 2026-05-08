@@ -97,7 +97,7 @@ web/ (Next.js) provides the primary onboarding + workspace experience.
 - Sidebar: project listing and selection, run history selection
 - Main area: onboarding, design state editing, constraint editing, save, run, results, What Changed view
 - API calls centralized in web/lib/api-client.ts
-- NOTE: frontend UI for floor plan upload not yet wired (backend only in Phase 6).
+- Floor plan upload UI is wired into the Next.js workspace center panel (file picker, drag-and-drop, results panel with room breakdown).
 
 ### Constraint input modes
 - Structured mode: constraints.hard_constraints, constraints.soft_constraints
@@ -162,7 +162,6 @@ Intentionally not implemented:
 - Rhino/IFC/BIM ingestion
 - full simulation engine
 - autonomous agent loops
-- frontend UI for floor plan upload (backend API only in Phase 6)
 - OpenAI provider for vision (Anthropic only)
 
 ## 8) Known Limitations
@@ -187,6 +186,5 @@ Tests:
 - pytest -q
 
 ## 10) Next Suggested Phase
-- Wire floor plan upload UI into the Next.js workspace (file picker, room list, suggestions panel)
 - Scenario branching: multiple named alternatives per project, side-by-side run comparison
 - Wire LLM generation into baseline narrative and agent review summaries
