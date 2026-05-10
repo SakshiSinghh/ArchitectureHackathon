@@ -173,13 +173,15 @@ export function Workspace({ initialProjectId }: WorkspaceProps) {
             error={error}
           />
         </div>
-        <RightPanel
-          state={baselinePreview || selectedRun?.baseline_state || projectDetail?.current_state || null}
-          review={reviewPreview || selectedRun?.agent_review || null}
-          diff={latestDiff}
-          run={selectedRun}
-          orientationOptions={orientationOptions}
-        />
+        <div className="shrink-0">
+          <RightPanel
+            state={baselinePreview || selectedRun?.baseline_state || projectDetail?.current_state || null}
+            review={reviewPreview || selectedRun?.agent_review || null}
+            diff={latestDiff}
+            run={selectedRun}
+            orientationOptions={orientationOptions}
+          />
+        </div>
       </div>
     </div>
   )

@@ -58,7 +58,7 @@ export function RightPanel({ state, review, diff, run, orientationOptions }: Rig
   const recommendations = review?.ranked_options || []
 
   return (
-    <div className="flex h-full w-80 flex-col border-l bg-sidebar">
+    <div className="flex h-full w-80 shrink-0 flex-col border-l bg-sidebar overflow-hidden">
       {/* Header */}
       <div className="flex h-16 items-center border-b px-4">
         <h2 className="font-semibold">Insights</h2>
