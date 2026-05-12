@@ -22,6 +22,7 @@ import type {
 import { LeftSidebar } from "./left-sidebar"
 import { CenterPanel } from "./center-panel"
 import { RightPanel } from "./right-panel"
+import { GrasshopperPanel } from "./grasshopper-panel"
 
 type WorkspaceProps = {
   initialProjectId: string | null
@@ -40,6 +41,7 @@ export function Workspace({ initialProjectId }: WorkspaceProps) {
   const [isSaving, setIsSaving] = useState(false)
   const [isRunning, setIsRunning] = useState(false)
   const [orientationOptions, setOrientationOptions] = useState<OrientationOptionsResponse | null>(null)
+  const [showGrasshopper, setShowGrasshopper] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const refreshProjects = useCallback(async () => {
@@ -155,13 +157,18 @@ export function Workspace({ initialProjectId }: WorkspaceProps) {
       <LeftSidebar
         projects={projects}
         activeProjectId={projectId}
-        onSelectProject={setProjectId}
+        onSelectProject={(id) => { setProjectId(id); setShowGrasshopper(false) }}
         runs={runs}
         selectedRunId={selectedRunId}
         onSelectRun={setSelectedRunId}
+        onGrasshopperClick={() => setShowGrasshopper((v) => !v)}
+        showingGrasshopper={showGrasshopper}
       />
       <div className="flex flex-1 overflow-hidden">
         <div className="flex-1 overflow-hidden">
+          {showGrasshopper ? (
+            <GrasshopperPanel />
+          ) : (
           <CenterPanel
             projectId={projectId}
             state={draftState}
@@ -172,6 +179,7 @@ export function Workspace({ initialProjectId }: WorkspaceProps) {
             isRunning={isRunning}
             error={error}
           />
+          )}
         </div>
         <div className="shrink-0">
           <RightPanel

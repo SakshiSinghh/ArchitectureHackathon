@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
-import { Plus, FolderOpen, Clock, ChevronRight } from "lucide-react"
+import { Plus, FolderOpen, Clock, ChevronRight, Plug } from "lucide-react"
 import { useOnboarding } from "@/lib/onboarding-context"
 import type { RunSnapshot } from "@/lib/api-types"
 
@@ -21,6 +21,8 @@ type LeftSidebarProps = {
   runs: RunSnapshot[]
   selectedRunId: string | null
   onSelectRun: (runId: string) => void
+  onGrasshopperClick: () => void
+  showingGrasshopper: boolean
 }
 
 export function LeftSidebar({
@@ -30,6 +32,8 @@ export function LeftSidebar({
   runs,
   selectedRunId,
   onSelectRun,
+  onGrasshopperClick,
+  showingGrasshopper,
 }: LeftSidebarProps) {
   const { resetOnboarding } = useOnboarding()
 
@@ -111,6 +115,21 @@ export function LeftSidebar({
             </div>
           </div>
         </ScrollArea>
+      </div>
+
+      {/* Grasshopper Plugin */}
+      <div className="border-t p-3">
+        <button
+          onClick={onGrasshopperClick}
+          className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors ${
+            showingGrasshopper
+              ? "bg-green-600 text-white"
+              : "hover:bg-sidebar-accent/50 text-muted-foreground"
+          }`}
+        >
+          <Plug className="h-4 w-4 shrink-0" />
+          <span className="font-medium">Grasshopper Plugin</span>
+        </button>
       </div>
     </div>
   )
