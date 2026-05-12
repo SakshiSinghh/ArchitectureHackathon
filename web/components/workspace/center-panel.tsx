@@ -234,17 +234,6 @@ export function CenterPanel({
       {/* Content */}
       <ScrollArea className="flex-1 min-h-0">
         <div className="grid gap-6 p-6">
-          {/* Review Mode */}
-          {projectId && (
-            <FloorPlanUpload
-              projectId={projectId}
-              onAnalysisComplete={(_analysis: FloorPlanAnalysis) => {
-                // Analysis is persisted server-side; reload state to reflect inferred fields
-                onStateChange(null)
-                setTimeout(() => onStateChange(localData), 0)
-              }}
-            />
-          )}
           {/* Project Info */}
           <Card>
             <CardHeader className="pb-4">
@@ -370,6 +359,28 @@ export function CenterPanel({
             </CardContent>
           </Card>
 
+          {/* Floor Plan Analysis */}
+          {projectId && (
+            <Card>
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Layers className="h-4 w-4" />
+                  Floor Plan Analysis
+                  <span className="ml-1 text-xs font-normal text-muted-foreground">(optional)</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <FloorPlanUpload
+                  projectId={projectId}
+                  onAnalysisComplete={(_analysis: FloorPlanAnalysis) => {
+                    onStateChange(null)
+                    setTimeout(() => onStateChange(localData), 0)
+                  }}
+                />
+              </CardContent>
+            </Card>
+          )}
+
           {/* Constraints */}
           <Card>
             <CardHeader className="pb-4">
@@ -381,48 +392,8 @@ export function CenterPanel({
             <CardContent>
               <div className="grid gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Structured constraints enabled</label>
-                  <div className="flex items-center justify-between rounded-lg border p-3">
-                    <span className="text-sm text-muted-foreground">Use structured hard and soft constraint lists</span>
-                    <Switch
-                      checked={Boolean(localData.constraints.structured_enabled)}
-                      onCheckedChange={(checked) =>
-                        setLocalData((prev) =>
-                          prev
-                            ? {
-                                ...prev,
-                                constraints: { ...prev.constraints, structured_enabled: checked },
-                              }
-                            : prev
-                        )
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Hard constraints (structured)</label>
-                    <Textarea
-                      value={hardConstraintsText}
-                      onChange={(event) => handleConstraintChange("hard_constraints", event.target.value)}
-                      placeholder="One per line"
-                      className="min-h-[100px]"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Soft constraints (structured)</label>
-                    <Textarea
-                      value={softConstraintsText}
-                      onChange={(event) => handleConstraintChange("soft_constraints", event.target.value)}
-                      placeholder="One per line"
-                      className="min-h-[100px]"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Written constraints (free text)</label>
+                  <label className="text-sm font-medium">Describe your constraints</label>
+                  <p className="text-xs text-muted-foreground">Write naturally — the AI will extract hard and soft constraints automatically.</p>
                   <Textarea
                     value={localData.constraints.free_text || ""}
                     onChange={(event) =>
@@ -566,6 +537,24 @@ export function CenterPanel({
               <CardContent className="pt-6 text-sm text-destructive">{error}</CardContent>
             </Card>
           ) : null}
+
+          {/* Run Analysis CTA at bottom */}
+          <div className="flex items-center justify-between rounded-xl border bg-muted/40 p-4">
+            <div>
+              <p className="text-sm font-medium">Ready to analyse?</p>
+              <p className="text-xs text-muted-foreground">Save then run to see scores and orientation options.</p>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={commitSave} disabled={isSaving || (!hasChanges && !projectId)}>
+                <Save className="mr-1.5 h-3.5 w-3.5" />
+                {isSaving ? "Saving..." : "Save"}
+              </Button>
+              <Button size="sm" onClick={commitRun} disabled={isRunning}>
+                <Play className="mr-1.5 h-3.5 w-3.5" />
+                {isRunning ? "Running..." : "Run Analysis"}
+              </Button>
+            </div>
+          </div>
         </div>
       </ScrollArea>
     </div>

@@ -21,22 +21,30 @@ export function StepIndicator() {
     <div className="flex items-center gap-2">
       {steps.map((s, index) => (
         <div key={s.id} className="flex items-center gap-2">
-          <div
-            className={cn(
-              "flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-all duration-300",
-              step > s.id
-                ? "bg-primary text-primary-foreground"
-                : step === s.id
-                  ? "bg-primary text-primary-foreground ring-4 ring-primary/20"
-                  : "bg-muted text-muted-foreground"
-            )}
-          >
-            {step > s.id ? <Check className="h-4 w-4" /> : s.id}
+          <div className="flex flex-col items-center gap-1">
+            <div
+              className={cn(
+                "flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-all duration-300",
+                step > s.id
+                  ? "bg-primary text-primary-foreground"
+                  : step === s.id
+                    ? "bg-primary text-primary-foreground ring-4 ring-primary/20"
+                    : "bg-muted text-muted-foreground"
+              )}
+            >
+              {step > s.id ? <Check className="h-4 w-4" /> : s.id}
+            </div>
+            <span className={cn(
+              "hidden text-[10px] font-medium sm:block",
+              step === s.id ? "text-foreground" : "text-muted-foreground"
+            )}>
+              {s.label}
+            </span>
           </div>
           {index < steps.length - 1 && (
             <div
               className={cn(
-                "hidden h-0.5 w-6 transition-colors duration-300 sm:block",
+                "hidden h-0.5 w-6 mb-4 transition-colors duration-300 sm:block",
                 step > s.id ? "bg-primary" : "bg-muted"
               )}
             />

@@ -29,36 +29,53 @@ function numeric(value: unknown): number {
 }
 
 export function RightPanel({ state, review, diff, run, orientationOptions }: RightPanelProps) {
-  const climateMetrics = (state?.climate_context?.environmental_metrics as Record<string, unknown>) || {}
+  const b = state?.baseline_results
+
+  const hasBaseline = b && (
+    b.energy_risk != null ||
+    b.daylight_potential != null ||
+    b.ventilation_potential != null
+  )
 
   const baselineMetrics = [
     {
-      label: "Heat Exposure",
-      value: numeric(climateMetrics.heat_exposure_score) * 100,
+      label: "Energy Risk",
+      value: numeric(b?.energy_risk) * 100,
       unit: "%",
       icon: Thermometer,
-      status: "warning",
+      color: "[&>div]:bg-orange-500",
+      hint: "Lower is better",
     },
     {
-      label: "Solar Exposure",
-      value: numeric(climateMetrics.solar_exposure_score) * 100,
+      label: "Daylight Potential",
+      value: numeric(b?.daylight_potential) * 100,
       unit: "%",
       icon: Sun,
-      status: "good",
+      color: "[&>div]:bg-yellow-400",
+      hint: "Higher is better",
     },
     {
-      label: "Ventilation Potential",
-      value: numeric(climateMetrics.ventilation_potential_score) * 100,
+      label: "Ventilation",
+      value: numeric(b?.ventilation_potential) * 100,
       unit: "%",
       icon: Wind,
-      status: "moderate",
+      color: "[&>div]:bg-sky-400",
+      hint: "Higher is better",
+    },
+    {
+      label: "Heat Exposure",
+      value: numeric(b?.heat_exposure) * 100,
+      unit: "%",
+      icon: Thermometer,
+      color: "[&>div]:bg-red-400",
+      hint: "Lower is better",
     },
   ]
 
   const recommendations = review?.ranked_options || []
 
   return (
-    <div className="flex h-full w-80 shrink-0 flex-col border-l bg-sidebar overflow-hidden">
+    <div className="flex h-full w-96 shrink-0 flex-col border-l bg-sidebar overflow-hidden">
       {/* Header */}
       <div className="flex h-16 items-center border-b px-4">
         <h2 className="font-semibold">Insights</h2>
@@ -69,41 +86,39 @@ export function RightPanel({ state, review, diff, run, orientationOptions }: Rig
           {/* Baseline Metrics */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">
-                Baseline Metrics
-              </CardTitle>
+              <CardTitle className="text-sm font-medium">Baseline Metrics</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {baselineMetrics.map((metric) => {
-                const Icon = metric.icon
-                return (
-                  <div key={metric.label} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Icon className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm">{metric.label}</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-sm font-semibold">
-                          {metric.value.toFixed(1)}
+              {!hasBaseline ? (
+                <div className="rounded-lg bg-muted/50 p-4 text-center space-y-1">
+                  <p className="text-sm font-medium text-muted-foreground">No analysis yet</p>
+                  <p className="text-xs text-muted-foreground">Fill in your project details and click Run Analysis</p>
+                </div>
+              ) : (
+                baselineMetrics.map((metric) => {
+                  const Icon = metric.icon
+                  return (
+                    <div key={metric.label} className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span className="text-sm">{metric.label}</span>
+                          <span className="text-xs text-muted-foreground">({metric.hint})</span>
+                        </div>
+                        <span className="text-sm font-semibold tabular-nums">
+                          {metric.value.toFixed(0)}{metric.unit}
                         </span>
-                        <span className="text-xs text-muted-foreground">
-                          {metric.unit}
-                        </span>
                       </div>
+                      <Progress value={metric.value} className={cn("h-1.5", metric.color)} />
                     </div>
-                    <Progress
-                      value={metric.value}
-                      className={cn(
-                        "h-1.5",
-                        metric.status === "good" && "[&>div]:bg-accent",
-                        metric.status === "warning" && "[&>div]:bg-orange-500",
-                        metric.status === "moderate" && "[&>div]:bg-yellow-500"
-                      )}
-                    />
-                  </div>
-                )
-              })}
+                  )
+                })
+              )}
+              {hasBaseline && b?.narrative_insight && (
+                <p className="text-xs text-muted-foreground border-t pt-3 leading-relaxed">
+                  {b.narrative_insight}
+                </p>
+              )}
             </CardContent>
           </Card>
 
