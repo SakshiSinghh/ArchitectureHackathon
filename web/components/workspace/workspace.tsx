@@ -21,7 +21,6 @@ import type {
 } from "@/lib/api-types"
 import { LeftSidebar } from "./left-sidebar"
 import { CenterPanel } from "./center-panel"
-import { GrasshopperPanel } from "./grasshopper-panel"
 
 type WorkspaceProps = {
   initialProjectId: string | null
@@ -40,7 +39,6 @@ export function Workspace({ initialProjectId }: WorkspaceProps) {
   const [isSaving, setIsSaving] = useState(false)
   const [isRunning, setIsRunning] = useState(false)
   const [orientationOptions, setOrientationOptions] = useState<OrientationOptionsResponse | null>(null)
-  const [showGrasshopper, setShowGrasshopper] = useState(false)
   const [activeTab, setActiveTab] = useState("project")
   const [error, setError] = useState<string | null>(null)
 
@@ -158,34 +156,30 @@ export function Workspace({ initialProjectId }: WorkspaceProps) {
       <LeftSidebar
         projects={projects}
         activeProjectId={projectId}
-        onSelectProject={(id) => { setProjectId(id); setShowGrasshopper(false) }}
+        onSelectProject={(id) => { setProjectId(id); setActiveTab("project") }}
         runs={runs}
         selectedRunId={selectedRunId}
         onSelectRun={setSelectedRunId}
-        onGrasshopperClick={() => setShowGrasshopper((v) => !v)}
-        showingGrasshopper={showGrasshopper}
+        onGrasshopperClick={() => setActiveTab((t) => t === "grasshopper" ? "project" : "grasshopper")}
+        showingGrasshopper={activeTab === "grasshopper"}
       />
       <div className="flex-1 overflow-hidden">
-        {showGrasshopper ? (
-          <GrasshopperPanel />
-        ) : (
-          <CenterPanel
-            projectId={projectId}
-            state={draftState}
-            onStateChange={setDraftState}
-            onSave={handleSave}
-            onRun={handleRun}
-            isSaving={isSaving}
-            isRunning={isRunning}
-            error={error}
-            review={reviewPreview || selectedRun?.agent_review || null}
-            diff={latestDiff}
-            run={selectedRun}
-            orientationOptions={orientationOptions}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-          />
-        )}
+        <CenterPanel
+          projectId={projectId}
+          state={draftState}
+          onStateChange={setDraftState}
+          onSave={handleSave}
+          onRun={handleRun}
+          isSaving={isSaving}
+          isRunning={isRunning}
+          error={error}
+          review={reviewPreview || selectedRun?.agent_review || null}
+          diff={latestDiff}
+          run={selectedRun}
+          orientationOptions={orientationOptions}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
       </div>
     </div>
   )
