@@ -4,19 +4,58 @@ A decision-support app for early-stage architectural design. Architects describe
 
 ## Live Demo
 
-- **Frontend:** [architecture-hackathon.vercel.app](https://architecture-hackathon.vercel.app)
+- **Frontend:** [architecture-hackathon.vercel.app](https://architecture-hackathon.vercel.app/)
 - **Backend API:** [precious-magic-production-805e.up.railway.app](https://precious-magic-production-805e.up.railway.app)
 
 ## Features
 
-- **Project workspace** — create, save, and iterate on design states
-- **Environmental analysis** — heuristic baseline scoring for energy risk, daylight, ventilation, and heat exposure
-- **AI recommendations** — Claude-powered ranked design options with trade-off notes
-- **Orientation comparison** — ranked orientations for your location with per-metric scores and narrative
-- **Constraint management** — free-text AI interpretation with accept / edit / reject review flow
-- **Run history** — browse past analysis runs and compare what changed
-- **PDF export** — one-click export of the Insights tab as a PDF report
-- **Grasshopper plugin** — GHPython component that calls the backend from Rhino/Grasshopper
+### 🏗️ Project Management
+- Create multiple named projects and switch between them from the sidebar
+- Save and reload design state at any point
+- View full run history per project with timestamps
+
+### 📊 Environmental Analysis
+- Baseline scoring for **Energy Risk**, **Daylight Potential**, **Ventilation**, and **Heat Exposure**
+- Semantic colour-coded results (green / amber / red) with plain-English status labels
+- AI-generated narrative insight summarising the overall design assessment
+- Climate data sourced from Visual Crossing → Open-Meteo → deterministic mock fallback
+
+### 🧭 Orientation Intelligence
+- Compare up to 8 cardinal/intercardinal orientations ranked by composite environmental score
+- Per-orientation breakdown of energy, daylight, and ventilation with mini bar charts
+- Best orientation highlighted with a narrative explanation tailored to your location
+
+### 💡 AI Recommendations
+- Claude-powered ranked design options with expected benefits and trade-off notes
+- Top recommendation surfaced as a hero card; all options shown in a flat comparison list
+- Penalty summary and reasoning from the agent for full transparency
+
+### 🔒 Constraint Management
+- Enter constraints as plain text — AI interprets and extracts hard/soft constraints automatically
+- Review each interpreted constraint: **accept**, **edit**, or **reject**
+- Manual hard/soft constraint lists available for structured input
+- Conflict warnings when constraints contradict each other
+
+### 📈 Run Comparison (What Changed)
+- Human-readable diff between the current and previous run
+- Shows metric changes as "↓ 10pp improved" or "↑ 8pp worsened"
+- Lists which input fields changed between runs
+
+### 📄 PDF Export
+- One-click **Export PDF** button in the Insights tab (appears after running analysis)
+- Exports a clean print-formatted report with all scores, recommendations, and orientation data
+
+### 🦗 Grasshopper Plugin
+- GHPython component downloadable directly from the app
+- Connects an orientation slider in Rhino/Grasshopper to live backend scoring
+- Returns energy, daylight, ventilation scores + ranked orientation options + narrative
+- Works with Rhino 7 (IronPython) and Rhino 8 (CPython) — no extra plugins needed
+
+### 🎨 Design
+- Warm architectural theme (terracotta primary, linen background)
+- Segmented-control tab navigation: Project · Insights · Grasshopper
+- Fully responsive single-column layout
+- Guided onboarding flow for new projects
 
 ## Tech Stack
 
