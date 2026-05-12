@@ -1,156 +1,134 @@
-# Environmental Design Negotiation Workspace
+# ArchEnv — Environmental Intelligence for Architects
 
-A web-first decision-support app for early-stage architectural negotiation where the core unit is a saved, evolving design state.
+A decision-support app for early-stage architectural design. Architects describe a building project, run environmental analysis, and get AI-ranked design recommendations with orientation scoring, energy risk, daylight potential, and ventilation performance.
 
-## Product Direction
-The app is now project-centered rather than one-shot form-centered.
+## Live Demo
 
-Users can:
-- create projects
-- save and load current design states
-- iteratively update intent, constraints, and priorities
-- rerun baseline and agent review cycles
-- inspect run history and compare what changed
+- **Frontend:** [architecture-hackathon.vercel.app](https://architecture-hackathon.vercel.app)
+- **Backend API:** [precious-magic-production-805e.up.railway.app](https://precious-magic-production-805e.up.railway.app)
 
-## Current Architecture
-- Frontend (main): Next.js app in web/
-- Frontend (fallback/debug): Streamlit app in frontend/
-- Backend: FastAPI API
-- Canonical model: ProjectState in shared schema
-- Persistence: local file-backed project storage under data/projects
-- Climate layer: Visual Crossing primary, Open-Meteo fallback/geocoding, deterministic mock fallback
+## Features
 
-## Frontend Integration Status
-- Vercel v0 generated UI is integrated as the main product-facing frontend in web/.
-- Backend remains the source of truth for projects, state updates, runs, and diffs.
-- Streamlit remains available for fallback debugging and contract inspection.
+- **Project workspace** — create, save, and iterate on design states
+- **Environmental analysis** — heuristic baseline scoring for energy risk, daylight, ventilation, and heat exposure
+- **AI recommendations** — Claude-powered ranked design options with trade-off notes
+- **Orientation comparison** — ranked orientations for your location with per-metric scores and narrative
+- **Constraint management** — free-text AI interpretation with accept / edit / reject review flow
+- **Run history** — browse past analysis runs and compare what changed
+- **PDF export** — one-click export of the Insights tab as a PDF report
+- **Grasshopper plugin** — GHPython component that calls the backend from Rhino/Grasshopper
 
-Integrated user flow in web/:
-- guided onboarding and project creation
-- project selection and workspace editing
-- save current state
-- run baseline and agent-review flow with persisted run snapshots
-- run history browsing
-- What Changed view
+## Tech Stack
 
-Constraint input modes:
-- Structured constraints: hard_constraints and soft_constraints
-- Written constraints: constraints.free_text
-- Interpreted constraints: parsed_constraints.extracted_items with accept/edit/reject statuses
-- Both manual and interpreted constraints can be used together.
-- Free-text constraints can be interpreted through a dedicated endpoint and reviewed in UI.
-- Accepted/edited interpreted constraints are merged into effective_hard_constraints for analysis.
+| Layer | Technology |
+|---|---|
+| Frontend | Next.js 16, React 19, shadcn/ui, Tailwind CSS 4 |
+| Backend | FastAPI, Python 3.13 |
+| AI | Anthropic Claude (optional — falls back to heuristics) |
+| Climate | Visual Crossing (primary), Open-Meteo (fallback), mock (final fallback) |
+| Hosting | Vercel (frontend) + Railway (backend) |
 
-## API Surface
-- Health:
-  - GET /health
-- Intake:
-  - GET /api/v1/intake/ping
-  - POST /api/v1/intake/parse
-  - POST /api/v1/intake/interpret-constraints
-- Analysis:
-  - GET /api/v1/analysis/ping
-  - POST /api/v1/analysis/baseline
-  - POST /api/v1/analysis/agent-review
-- Projects (Phase 4):
-  - GET /api/v1/projects
-  - POST /api/v1/projects
-  - GET /api/v1/projects/{project_id}
-  - PUT /api/v1/projects/{project_id}
-  - POST /api/v1/projects/{project_id}/runs
-  - GET /api/v1/projects/{project_id}/runs
+## Local Development
 
-## Local Persistence Model
-Default storage path:
-- data/projects
+### Prerequisites
+- Python 3.11+
+- Node.js 18+
 
-Structure:
-- data/projects/{project_id}/project_meta.json
-- data/projects/{project_id}/current_state.json
-- data/projects/{project_id}/runs/{run_id}.json
+### Backend
 
-Each run snapshot stores:
-- input state used for the cycle
-- baseline-enriched state
-- agent-review output
-- top recommendation
-- climate provider/source metadata
+```bash
+python -m venv venv
+source venv/bin/activate        # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+cp .env.example .env            # fill in your keys
+uvicorn backend.main:app --reload --port 8000
+```
 
-## Climate Provider Stack
-- Primary weather provider: Visual Crossing using VISUAL_CROSSING_API_KEY
-- Geocoding: Open-Meteo geocoding API
-- Weather fallback: Open-Meteo forecast API
-- Final fallback: deterministic mock provider
+### Frontend
 
-Source transparency in baseline state:
-- climate_context.provider
-- climate_context.source_tier
+```bash
+cd web
+npm install
+# create web/.env.local with:
+# NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+npm run dev
+```
 
-## Workspace Flow
-1. Create or select a project in the sidebar.
-2. Edit current design state in grouped sections.
-3. Save current state.
-4. Run baseline + agent review cycle.
-5. Inspect results and recommendations.
-6. Review What Changed against the previous run.
-7. Continue iterating.
+Open [http://localhost:3000](http://localhost:3000).
 
-## Configuration
-Use a local .env file for secrets and overrides. Do not commit .env.
+## Environment Variables
 
-Environment variables:
-- APP_ENV
-- MOCK_MODE
-- VISUAL_CROSSING_API_KEY
-- OPEN_METEO_BASE_URL
-- PROJECTS_DATA_DIR
-- ANTHROPIC_API_KEY (optional)
-- OPENAI_API_KEY (optional)
+### Backend (`.env`)
 
-Frontend web/ environment:
-- copy web/.env.local.example to web/.env.local
-- set NEXT_PUBLIC_API_BASE_URL to backend URL (default http://127.0.0.1:8000)
+| Variable | Description |
+|---|---|
+| `ANTHROPIC_API_KEY` | Claude API key (optional — uses heuristics if absent) |
+| `VISUAL_CROSSING_API_KEY` | Weather data (optional — falls back to Open-Meteo) |
+| `MOCK_MODE` | Set `true` to skip all external API calls |
+| `PROJECTS_DATA_DIR` | Override data storage path (default: `data/projects`) |
 
-Template values live in .env.example.
+### Frontend (`web/.env.local`)
 
-## Run Locally
-1. Create and activate a virtual environment.
-2. Install dependencies:
-   - pip install -r requirements.txt
-3. Install web frontend dependencies:
-  - cd web
-  - npm install
-  - cd ..
-4. Ensure local .env exists and contains VISUAL_CROSSING_API_KEY.
-5. Optionally set ANTHROPIC_API_KEY and/or OPENAI_API_KEY for future provider-backed LLM features.
-6. Run backend:
-   - uvicorn backend.main:app --reload
-7. Run main frontend:
-  - cd web
-  - npm run dev
-8. Optional fallback frontend:
-   - streamlit run frontend/app.py
-9. Run tests:
-   - pytest -q
+| Variable | Description |
+|---|---|
+| `NEXT_PUBLIC_API_BASE_URL` | Backend URL (default: `http://localhost:8000`) |
 
-## Current Development Status
-Implemented now:
-- project workspace and project persistence
-- editable current design state
-- iterative run cycle with snapshots
-- run history listing
-- simple What Changed diff against previous run
-- climate-informed baseline and climate-grounded agent explanations
-- free-text constraint interpretation with LLM-first + heuristic fallback
-- human-in-loop accept/edit/reject flow for interpreted constraints
-- transparent precedence and conflict warnings between manual and parsed constraints
+## Deployment
 
-Still simplified:
-- no user accounts/auth
-- no cloud database or collaboration
-- no canvas-style geometry editing
-- no full simulation engine
-- environmental scoring remains heuristic (not simulation-grade)
+### Backend → Railway
 
-## Next Product Step
-A strong next phase is scenario management: branchable design alternatives per project, side-by-side run comparison, and richer trend visualizations across iterations.
+1. Connect your GitHub repo in Railway
+2. Set start command: `uvicorn backend.main:app --host 0.0.0.0 --port $PORT`
+3. Add environment variables (at minimum `ANTHROPIC_API_KEY`)
+
+### Frontend → Vercel
+
+1. Import repo in Vercel
+2. Set **Root Directory** to `web`, **Framework** to Next.js
+3. Add env var `NEXT_PUBLIC_API_BASE_URL` pointing to your Railway URL
+
+## API Endpoints
+
+```
+GET  /health
+GET  /api/v1/intake/ping
+POST /api/v1/intake/parse
+POST /api/v1/intake/interpret-constraints
+POST /api/v1/analysis/baseline
+POST /api/v1/analysis/agent-review
+GET  /api/v1/analysis/orientation-options
+GET  /api/v1/projects
+POST /api/v1/projects
+GET  /api/v1/projects/{project_id}
+PUT  /api/v1/projects/{project_id}
+POST /api/v1/projects/{project_id}/runs
+GET  /api/v1/projects/{project_id}/runs
+POST /api/v1/projects/{project_id}/upload-plan
+```
+
+## Grasshopper Plugin
+
+Download the GHPython component from the **Grasshopper** tab in the app. Connects orientation slider → live environmental scores without leaving Rhino. Works with Rhino 7 (IronPython) and Rhino 8 (CPython). No extra plugins needed.
+
+## Project Structure
+
+```
+├── backend/          FastAPI app
+│   ├── api/          Route handlers
+│   ├── agents/       Claude-based agent logic
+│   ├── models/       Pydantic schemas
+│   └── main.py       App entry point
+├── web/              Next.js frontend
+│   ├── app/          Pages and layout
+│   ├── components/   UI components
+│   └── lib/          API client and types
+├── data/             Local project storage (git-ignored)
+├── requirements.txt  Python dependencies
+└── .env.example      Environment variable template
+```
+
+## Known Limitations
+
+- No user auth — all projects are shared on a single backend instance
+- Environmental scoring is heuristic, not simulation-grade
+- Data is stored on the filesystem (resets on Railway redeploy unless a volume is attached)

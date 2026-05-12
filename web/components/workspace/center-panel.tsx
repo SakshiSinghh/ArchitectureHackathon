@@ -20,7 +20,7 @@ import {
 import {
   Save, Play, Layers, Lock, SlidersHorizontal, Compass, Download,
   Building2, MapPin, Thermometer, Sun, Wind, Lightbulb, ArrowRight,
-  FolderOpen, BarChart2, Plug, TrendingUp, TrendingDown, Minus,
+  FolderOpen, BarChart2, Plug, TrendingUp, TrendingDown, Minus, FileDown,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type {
@@ -196,6 +196,10 @@ export function CenterPanel({
     setHasChanges(true)
   }
 
+  const handleExportPDF = () => {
+    window.print()
+  }
+
   const commitSave = async () => {
     if (!localData) return
     onStateChange(localData)
@@ -281,6 +285,12 @@ export function CenterPanel({
           </div>
         ) : (
           <div className="flex shrink-0 items-center gap-2">
+            {activeTab === "insights" && hasBaseline && (
+              <Button variant="outline" size="sm" onClick={handleExportPDF} className="gap-1.5">
+                <FileDown className="h-3.5 w-3.5" />
+                Export PDF
+              </Button>
+            )}
             <Button
               variant="outline" size="sm"
               onClick={commitSave}
@@ -448,7 +458,7 @@ export function CenterPanel({
 
       {/* ══ Insights tab ══════════════════════════════════════════════════ */}
       <TabsContent value="insights" className="flex-1 min-h-0 mt-0">
-        <ScrollArea className="h-full">
+        <ScrollArea className="h-full" id="insights-print-area">
           <div className="space-y-5 p-6 max-w-3xl mx-auto">
 
             {/* ── Empty state ── */}
