@@ -145,29 +145,25 @@
 
 /* ── PDF / Print styles ───────────────────────────────────────────────────── */
 @media print {
-  /* hide everything by default */
-  body > * { display: none !important; }
+  /* hide everything, then reveal only the insights content */
+  body * {
+    visibility: hidden !important;
+  }
 
-  /* show only the print target */
+  #insights-print-area,
+  #insights-print-area * {
+    visibility: visible !important;
+  }
+
   #insights-print-area {
-    display: block !important;
-    position: static !important;
-    overflow: visible !important;
-    height: auto !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
     width: 100% !important;
-    padding: 24px !important;
+    padding: 32px !important;
     background: white !important;
     color: black !important;
   }
-
-  /* flatten shadcn scroll-area so all content prints */
-  #insights-print-area [data-radix-scroll-area-viewport] {
-    overflow: visible !important;
-    height: auto !important;
-  }
-
-  /* cards print cleanly */
-  #insights-print-area .border { border: 1px solid #e5e7eb !important; }
 
   /* avoid page breaks inside cards */
   #insights-print-area .rounded-lg,
@@ -179,6 +175,7 @@
   /* print header */
   #insights-print-area::before {
     content: "ArchEnv — Environmental Analysis Report";
+    visibility: visible !important;
     display: block;
     font-size: 18px;
     font-weight: 700;

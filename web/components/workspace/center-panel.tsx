@@ -458,8 +458,8 @@ export function CenterPanel({
 
       {/* ══ Insights tab ══════════════════════════════════════════════════ */}
       <TabsContent value="insights" className="flex-1 min-h-0 mt-0">
-        <ScrollArea className="h-full" id="insights-print-area">
-          <div className="space-y-5 p-6 max-w-3xl mx-auto">
+        <ScrollArea className="h-full">
+          <div id="insights-print-area" className="space-y-5 p-6 max-w-3xl mx-auto">
 
             {/* ── Empty state ── */}
             {!hasBaseline ? (
