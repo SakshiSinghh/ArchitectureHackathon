@@ -17,12 +17,22 @@ app = FastAPI(
     description="Phase 0 API skeleton for structured intake and baseline analysis.",
 )
 
+_CORS_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+# Allow any Vercel deployment URL (preview + production)
+_ALLOWED_ORIGIN_PATTERNS = ["https://*.vercel.app"]
+
+import os as _os
+_extra = _os.environ.get("ALLOWED_ORIGIN", "")
+if _extra:
+    _CORS_ORIGINS.append(_extra)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ],
+    allow_origins=_CORS_ORIGINS,
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
