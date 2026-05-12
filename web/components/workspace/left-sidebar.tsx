@@ -42,9 +42,12 @@ export function LeftSidebar({
       {/* Logo */}
       <div className="flex h-16 items-center gap-2 border-b px-4">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-          <span className="text-sm font-bold text-primary-foreground">F</span>
+          <span className="text-sm font-bold text-primary-foreground">A</span>
         </div>
-        <span className="text-lg font-semibold">Formscape</span>
+        <div>
+          <span className="text-base font-semibold tracking-tight">ArchEnv</span>
+          <p className="text-[10px] text-muted-foreground leading-none">Environmental Intelligence</p>
+        </div>
       </div>
 
       {/* New Project Button */}

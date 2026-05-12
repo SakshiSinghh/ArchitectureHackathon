@@ -212,7 +212,6 @@ export function CenterPanel({
       <div className="flex h-16 items-center justify-between border-b px-6">
         <div className="flex items-center gap-3">
           <h1 className="text-xl font-semibold">{localData.project_name}</h1>
-          {projectId ? <Badge variant="outline">{projectId}</Badge> : null}
           {hasChanges && (
             <Badge variant="secondary" className="text-xs">
               Unsaved changes

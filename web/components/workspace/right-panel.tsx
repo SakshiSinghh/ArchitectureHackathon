@@ -77,8 +77,11 @@ export function RightPanel({ state, review, diff, run, orientationOptions }: Rig
   return (
     <div className="flex h-full w-96 shrink-0 flex-col border-l bg-sidebar overflow-hidden">
       {/* Header */}
-      <div className="flex h-16 items-center border-b px-4">
-        <h2 className="font-semibold">Insights</h2>
+      <div className="flex h-16 items-center justify-between border-b px-4">
+        <div>
+          <h2 className="font-semibold">Insights</h2>
+          <p className="text-xs text-muted-foreground">Environmental analysis</p>
+        </div>
       </div>
 
       <ScrollArea className="flex-1 min-h-0">
