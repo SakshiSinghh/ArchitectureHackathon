@@ -75,14 +75,11 @@ const OUTPUTS = [
 
 export function GrasshopperPanel() {
   return (
-    <div className="flex h-full overflow-hidden">
+    <ScrollArea className="h-full">
+      <div className="space-y-5 p-6 max-w-3xl mx-auto">
 
-      {/* ── Left: overview + collapsible setup ───────────────────────── */}
-      <ScrollArea className="flex-1">
-        <div className="space-y-5 p-6">
-
-          {/* Overview */}
-          <Card>
+        {/* Overview */}
+        <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-semibold">Overview</CardTitle>
             </CardHeader>
@@ -132,13 +129,6 @@ export function GrasshopperPanel() {
             </CardContent>
           </Card>
 
-        </div>
-      </ScrollArea>
-
-      {/* ── Right: reference tables ───────────────────────────────────── */}
-      <div className="w-72 shrink-0 border-l overflow-y-auto bg-sidebar/40">
-        <div className="space-y-5 p-5">
-
           {/* Input reference */}
           <Card>
             <CardHeader className="pb-3">
@@ -186,9 +176,7 @@ export function GrasshopperPanel() {
             </CardContent>
           </Card>
 
-        </div>
       </div>
-
-    </div>
+    </ScrollArea>
   )
 }

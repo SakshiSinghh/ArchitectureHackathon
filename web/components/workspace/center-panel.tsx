@@ -267,11 +267,8 @@ export function CenterPanel({
 
       {/* ══ Project tab ═══════════════════════════════════════════════════ */}
       <TabsContent value="project" className="flex-1 min-h-0 mt-0">
-        <div className="flex h-full overflow-hidden">
-
-          {/* Left: scrollable form area */}
-          <ScrollArea className="flex-1">
-            <div className="space-y-5 p-6">
+        <ScrollArea className="h-full">
+          <div className="space-y-5 p-6 max-w-3xl mx-auto">
 
               {/* Combined project card */}
               <Card>
@@ -479,100 +476,14 @@ export function CenterPanel({
                   <CardContent className="pt-4 pb-4 text-sm text-destructive">{error}</CardContent>
                 </Card>
               )}
-            </div>
-          </ScrollArea>
-
-          {/* Right: status & live metrics panel */}
-          <div className="w-64 xl:w-72 shrink-0 border-l overflow-y-auto bg-sidebar/40">
-            <div className="space-y-5 p-5">
-
-              {/* Run status */}
-              <div>
-                <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Status</p>
-                <div className="flex items-center gap-2">
-                  <span className={cn(
-                    "h-2 w-2 rounded-full shrink-0",
-                    isRunning ? "bg-amber-400 animate-pulse" :
-                    hasBaseline ? "bg-emerald-500" :
-                    "bg-muted-foreground/30"
-                  )} />
-                  <span className="text-sm">
-                    {isRunning ? "Analysing…" : hasBaseline ? "Analysis ready" : "Not run yet"}
-                  </span>
-                </div>
-                {run && (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {new Date(run.created_at).toLocaleString("en-GB", {
-                      day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
-                    })}
-                  </p>
-                )}
-              </div>
-
-              {/* Quick metrics */}
-              {hasBaseline && (
-                <div>
-                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Latest Scores</p>
-                  <div className="space-y-3">
-                    {baselineMetrics.map((m) => {
-                      const Icon = m.icon
-                      return (
-                        <div key={m.label}>
-                          <div className="flex items-center justify-between mb-1">
-                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                              <Icon className="h-3 w-3" />
-                              {m.label}
-                            </div>
-                            <span className="text-xs font-semibold tabular-nums">{m.value.toFixed(0)}%</span>
-                          </div>
-                          <Progress value={m.value} className={cn("h-1", m.color)} />
-                        </div>
-                      )
-                    })}
-                    <button
-                      onClick={() => onTabChange?.("insights")}
-                      className="mt-0.5 text-xs text-primary hover:underline underline-offset-2"
-                    >
-                      View full analysis →
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Top recommendation */}
-              {recommendations.length > 0 && (
-                <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-1.5">
-                  <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
-                    <Lightbulb className="h-3.5 w-3.5" />
-                    Top Pick
-                  </div>
-                  <p className="text-xs font-medium">{recommendations[0].title}</p>
-                  <p className="text-xs text-muted-foreground leading-relaxed line-clamp-4">
-                    {recommendations[0].description}
-                  </p>
-                </div>
-              )}
-
-              {/* Empty state hint */}
-              {!hasBaseline && !isRunning && (
-                <div className="rounded-lg border-2 border-dashed border-border/50 p-4 text-center space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">No analysis yet</p>
-                  <p className="text-[11px] text-muted-foreground/60 leading-relaxed">
-                    Save and click Run Analysis to see environmental scores here
-                  </p>
-                </div>
-              )}
-
-            </div>
           </div>
-
-        </div>
+        </ScrollArea>
       </TabsContent>
 
       {/* ══ Insights tab ══════════════════════════════════════════════════ */}
       <TabsContent value="insights" className="flex-1 min-h-0 mt-0">
         <ScrollArea className="h-full">
-          <div className="space-y-5 p-6">
+          <div className="space-y-5 p-6 max-w-3xl mx-auto">
 
             {!hasBaseline ? (
               <Card>
@@ -621,117 +532,84 @@ export function CenterPanel({
                   </Card>
                 )}
 
-                {/* Two-column layout */}
-                <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
+                {orientationOptions && (
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-semibold">Orientation Options</CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <OrientationOptions data={orientationOptions} />
+                    </CardContent>
+                  </Card>
+                )}
 
-                  {/* Left column */}
-                  <div className="space-y-5">
-                    {orientationOptions && (
-                      <Card>
-                        <CardHeader className="pb-3">
-                          <CardTitle className="text-sm font-semibold">Orientation Options</CardTitle>
-                        </CardHeader>
-                        <CardContent className="pt-0">
-                          <OrientationOptions data={orientationOptions} />
-                        </CardContent>
-                      </Card>
-                    )}
+                {recommendations.length > 0 && (
+                  <Card className="border-primary/30 bg-primary/5">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+                        <Lightbulb className="h-4 w-4 text-primary" /> Top Recommendation
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <h4 className="font-medium">{recommendations[0].title}</h4>
+                      <p className="text-sm text-muted-foreground">{recommendations[0].description}</p>
+                      <Badge variant="secondary" className="text-xs">score {recommendations[0].score.toFixed(3)}</Badge>
+                    </CardContent>
+                  </Card>
+                )}
 
-                    {recommendations.length > 0 && (
-                      <Card className="border-primary/30 bg-primary/5">
-                        <CardHeader className="pb-3">
-                          <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-                            <Lightbulb className="h-4 w-4 text-primary" /> Top Recommendation
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-2">
-                          <h4 className="font-medium">{recommendations[0].title}</h4>
-                          <p className="text-sm text-muted-foreground">{recommendations[0].description}</p>
-                          <Badge variant="secondary" className="text-xs">
-                            score {recommendations[0].score.toFixed(3)}
-                          </Badge>
-                        </CardContent>
-                      </Card>
-                    )}
-                  </div>
+                {recommendations.length > 0 && (
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-semibold">Trade-offs</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {recommendations.map((opt) => (
+                        <div key={opt.title} className="rounded-lg border p-3 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium">{opt.title}</span>
+                            <Badge variant="outline" className="text-xs tabular-nums">{opt.score.toFixed(3)}</Badge>
+                          </div>
+                          <div className="text-xs space-y-1">
+                            <p className="text-muted-foreground"><span className="text-emerald-600 font-medium">+</span> {opt.expected_benefit}</p>
+                            <p className="text-muted-foreground"><span className="text-foreground font-medium">−</span> {opt.tradeoff_note}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                )}
 
-                  {/* Right column */}
-                  <div className="space-y-4">
-                    {recommendations.length > 0 && (
-                      <Card>
-                        <CardHeader className="pb-3">
-                          <CardTitle className="text-sm font-semibold">Trade-offs</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-3">
-                          {recommendations.map((opt) => (
-                            <div key={opt.title} className="rounded-lg border p-3 space-y-2">
-                              <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium">{opt.title}</span>
-                                <Badge variant="outline" className="text-xs tabular-nums">
-                                  {opt.score.toFixed(3)}
-                                </Badge>
-                              </div>
-                              <div className="text-xs space-y-1">
-                                <p className="text-muted-foreground">
-                                  <span className="text-emerald-600 font-medium">+</span> {opt.expected_benefit}
-                                </p>
-                                <p className="text-muted-foreground">
-                                  <span className="text-foreground font-medium">−</span> {opt.tradeoff_note}
-                                </p>
-                              </div>
-                            </div>
-                          ))}
-                        </CardContent>
-                      </Card>
-                    )}
-
-                    <Card>
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-semibold">What Changed</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-2">
-                        {!diff && (
-                          <p className="text-sm text-muted-foreground">Run two iterations to view changes.</p>
-                        )}
-                        {diff?.changed_inputs?.slice(0, 5).map((field) => (
-                          <div key={field} className="flex items-center justify-between text-sm">
-                            <span className="text-muted-foreground">{field}</span>
-                            <Badge variant="outline" className="text-xs">modified</Badge>
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-semibold">What Changed</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {!diff && <p className="text-sm text-muted-foreground">Run two iterations to view changes.</p>}
+                    {diff?.changed_inputs?.slice(0, 5).map((field) => (
+                      <div key={field} className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground">{field}</span>
+                        <Badge variant="outline" className="text-xs">modified</Badge>
+                      </div>
+                    ))}
+                    {diff && Object.keys(diff.changed_baseline_metrics).length > 0 && (
+                      <div className="pt-2 text-xs text-muted-foreground space-y-1">
+                        {Object.entries(diff.changed_baseline_metrics).map(([key, values]) => (
+                          <div key={key} className="flex items-center gap-1.5">
+                            <span className="font-medium text-foreground">{key}</span>
+                            <ArrowRight className="h-3 w-3" />
+                            <span>{String(values.previous)}</span>
+                            <ArrowRight className="h-3 w-3" />
+                            <span className="font-medium text-foreground">{String(values.current)}</span>
                           </div>
                         ))}
-                        {diff && Object.keys(diff.changed_baseline_metrics).length > 0 && (
-                          <div className="pt-2 text-xs text-muted-foreground space-y-1">
-                            {Object.entries(diff.changed_baseline_metrics).map(([key, values]) => (
-                              <div key={key} className="flex items-center gap-1.5">
-                                <span className="font-medium text-foreground">{key}</span>
-                                <ArrowRight className="h-3 w-3" />
-                                <span>{String(values.previous)}</span>
-                                <ArrowRight className="h-3 w-3" />
-                                <span className="font-medium text-foreground">{String(values.current)}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {run && (
-                          <div className="pt-1 text-xs text-muted-foreground">
-                            Run: {new Date(run.created_at).toLocaleString()} · {run.climate_provider || "heuristic"}
-                          </div>
-                        )}
-                        {review?.top_option_reason && (
-                          <div className="rounded-md border p-2 text-xs text-muted-foreground">
-                            {review.top_option_reason}
-                          </div>
-                        )}
-                        {review?.penalty_summary && (
-                          <div className="rounded-md border p-2 text-xs text-muted-foreground">
-                            {review.penalty_summary}
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                </div>
+                      </div>
+                    )}
+                    {run && <div className="pt-1 text-xs text-muted-foreground">Run: {new Date(run.created_at).toLocaleString()} · {run.climate_provider || "heuristic"}</div>}
+                    {review?.top_option_reason && <div className="rounded-md border p-2 text-xs text-muted-foreground">{review.top_option_reason}</div>}
+                    {review?.penalty_summary && <div className="rounded-md border p-2 text-xs text-muted-foreground">{review.penalty_summary}</div>}
+                  </CardContent>
+                </Card>
               </>
             )}
           </div>
