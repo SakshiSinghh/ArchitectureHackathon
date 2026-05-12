@@ -41,9 +41,9 @@ export function OnboardingFlow() {
         <div className="mx-auto flex h-16 max-w-screen-xl items-center justify-between px-6">
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <span className="text-sm font-bold text-primary-foreground">F</span>
+              <span className="text-sm font-bold text-primary-foreground">A</span>
             </div>
-            <span className="text-lg font-semibold">Formscape</span>
+            <span className="text-lg font-semibold">ArchEnv</span>
           </div>
           <StepIndicator />
           <div className="w-24" /> {/* Spacer for centering */}
