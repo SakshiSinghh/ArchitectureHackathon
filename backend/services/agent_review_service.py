@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from backend.agents.compensation_agent import CompensationAgent
+from backend.services.llm_service import LLMService
 from backend.agents.constraint_agent import ConstraintAgent
 from backend.agents.tradeoff_agent import TradeoffAgent
 from backend.schemas.api_models import (
@@ -69,17 +70,26 @@ def run_agent_review(project: ProjectState) -> AgentReviewResponse:
             )
         )
 
-    top_option_reason = (
-        f"Top option is ranked highest by weighted priority score ({ranked_options[0].score}) "
-        f"with rationale: {ranked_options[0].rationale}. "
-        f"Climate context: heat={heat_exposure:.2f}, solar={solar_exposure:.2f}, ventilation={ventilation_context:.2f}."
-        if ranked_options
-        else "No mitigation option available for current state."
-    )
+    if ranked_options:
+        heuristic_top_reason = (
+            f"Top option is ranked highest by weighted priority score ({ranked_options[0].score}) "
+            f"with rationale: {ranked_options[0].rationale}. "
+            f"Climate context: heat={heat_exposure:.2f}, solar={solar_exposure:.2f}, ventilation={ventilation_context:.2f}."
+        )
+        top_option_reason = (
+            _llm_top_reason(ranked_options[0], deltas, project)
+            or heuristic_top_reason
+        )
+    else:
+        top_option_reason = "No mitigation option available for current state."
 
-    penalty_summary = (
+    heuristic_penalty = (
         "Constraint penalties increased energy risk and reduced daylight/ventilation potential. "
         f"Penalty score={constraint_result['penalty']}. {constraint_result['note']}"
+    )
+    penalty_summary = (
+        _llm_penalty_summary(constraint_result, deltas, project)
+        or heuristic_penalty
     )
 
     return AgentReviewResponse(
@@ -90,3 +100,62 @@ def run_agent_review(project: ProjectState) -> AgentReviewResponse:
         ranked_options=ranked_options,
         top_option_reason=top_option_reason,
     )
+
+
+def _llm_top_reason(top: RankedMitigation, deltas: MetricsDelta, project: ProjectState) -> str | None:
+    """Return an LLM-generated explanation for why the top mitigation option was chosen."""
+
+    llm = LLMService()
+    lines = [
+        "You are an environmental design consultant. Write 2 plain-language sentences explaining",
+        "to an architect why this mitigation strategy was selected as the top recommendation.",
+        "",
+        f"Top strategy: {top.title}",
+        f"Description: {top.description}",
+        f"Expected benefit: {top.expected_benefit}",
+        f"Trade-off: {top.tradeoff_note}",
+        f"Priority score: {top.score:.3f}",
+        "Constraint-adjusted metric changes:",
+        f"  Energy risk delta: {deltas.energy_risk_delta:+.3f}",
+        f"  Daylight potential delta: {deltas.daylight_potential_delta:+.3f}",
+        f"  Ventilation potential delta: {deltas.ventilation_potential_delta:+.3f}",
+        f"Building: {project.building.building_type or 'unspecified'}, ",
+        f"orientation {project.building.orientation_deg or '?'}deg, ",
+        f"location: {project.site.location_name or 'unspecified'}",
+        "",
+        "Be specific about what this strategy addresses and why it fits this project best.",
+        "Do not use bullet points.",
+    ]
+    result = llm.generate("\n".join(lines))
+    if result.startswith("["):
+        return None
+    return result
+
+
+def _llm_penalty_summary(
+    constraint_result: dict, deltas: MetricsDelta, project: ProjectState
+) -> str | None:
+    """Return an LLM-generated constraint penalty summary."""
+
+    llm = LLMService()
+    constraints = project.constraints.get("hard_constraints") or []
+    constraint_text = ", ".join(constraints[:3]) if constraints else "none"
+    lines = [
+        "You are an environmental design consultant. Write 1-2 plain-language sentences summarising",
+        "the performance impact of the architect's design constraints.",
+        "",
+        f"Hard constraints applied: {constraint_text}",
+        f"Penalty score: {constraint_result.get('penalty', 0)}",
+        f"Note: {constraint_result.get('note', '')}",
+        "Constraint-adjusted metric changes:",
+        f"  Energy risk: {deltas.energy_risk_delta:+.3f}",
+        f"  Daylight potential: {deltas.daylight_potential_delta:+.3f}",
+        f"  Ventilation potential: {deltas.ventilation_potential_delta:+.3f}",
+        "",
+        "If penalties are zero, say the constraints have no measurable performance cost.",
+        "Be concise and practical. Do not use bullet points.",
+    ]
+    result = llm.generate("\n".join(lines))
+    if result.startswith("["):
+        return None
+    return result

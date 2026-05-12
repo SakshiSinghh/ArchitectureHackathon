@@ -56,9 +56,10 @@ class LLMService:
         return available[0]
 
     def generate(self, prompt: str, preferred_provider: str | None = None) -> str:
-        """Return safe fallback output until real provider SDK clients are added."""
+        """Generate text from a prompt using the best available provider.
 
-        _ = prompt  # Prompt is intentionally unused until provider SDK integration is enabled.
+        Falls back gracefully when no key is present or the call fails.
+        """
 
         if settings.mock_mode:
             return "[MOCK] Mitigation suggestions are running in demo mode."
@@ -67,10 +68,15 @@ class LLMService:
         if provider is None:
             return "[DETERMINISTIC] No LLM provider key detected; using deterministic behavior."
 
-        return (
-            f"[PLACEHOLDER:{provider}] Provider key detected but external client integration "
-            "is not enabled in this phase."
-        )
+        try:
+            if provider == "anthropic":
+                return self._anthropic_completion(prompt)
+            if provider == "openai":
+                return self._openai_completion(prompt)
+        except LLMServiceError:
+            pass
+
+        return "[FALLBACK] LLM call failed; using heuristic insight."
 
     def parse_constraints_json(self, free_text: str, preferred_provider: str | None = None) -> tuple[dict[str, Any], str]:
         """Interpret free-text constraints using available LLM provider.
@@ -192,4 +198,145 @@ class LLMService:
 
         payload.setdefault("confidence_score", 0.0)
         payload.setdefault("notes", [])
+        return payload
+
+    # ------------------------------------------------------------------
+    # Floor plan vision analysis
+    # ------------------------------------------------------------------
+
+    _FLOOR_PLAN_PROMPT = (
+        "You are an environmental design analysis assistant for architects.\n"
+        "Analyse this architectural floor plan and extract structured environmental data.\n\n"
+        "Assumptions:\n"
+        "- If no north arrow is visible, assume the top of the image faces north.\n"
+        "- External walls are those on the building perimeter.\n"
+        "- Classify facade orientations as: north, south, east, west, "
+        "north-east, north-west, south-east, south-west.\n\n"
+        "Focus on:\n"
+        "1. Which rooms face high heat-gain orientations (west, west-facing in tropics).\n"
+        "2. Cross-ventilation potential (rooms with openings on opposing facades).\n"
+        "3. Daylight quality (north for diffuse light in tropics, east for morning light).\n"
+        "4. Specific actionable element-level suggestions: window placement, "
+        "glazing ratio, shading devices.\n\n"
+        "Return ONLY valid JSON with no markdown fences:\n"
+        "{\n"
+        '  "primary_orientation_deg": 0,\n'
+        '  "north_assumption": "top of image assumed as north",\n'
+        '  "rooms": [\n'
+        "    {\n"
+        '      "room_name": "Living Room",\n'
+        '      "facade_orientations": ["south", "west"],\n'
+        '      "is_external": true,\n'
+        '      "environmental_issues": ["West-facing glazing risks afternoon heat gain"],\n'
+        '      "suggestions": ["Add horizontal shading fins on west facade"]\n'
+        "    }\n"
+        "  ],\n"
+        '  "overall_issues": ["High heat gain risk on west elevation"],\n'
+        '  "overall_suggestions": ["Increase north-facing glazing ratio"],\n'
+        '  "confidence": "medium",\n'
+        '  "analysis_notes": "Residential floor plan, single floor"\n'
+        "}"
+    )
+
+    def analyse_floor_plan(
+        self, image_bytes: bytes, media_type: str, preferred_provider: str | None = None
+    ) -> tuple[dict[str, Any], str]:
+        """Send a floor plan image or PDF to Claude vision and return structured analysis.
+
+        Returns (parsed_dict, provider_name).
+        Raises LLMServiceError when no provider is available or the call fails.
+        """
+
+        provider = self.selected_provider(preferred_provider=preferred_provider)
+        if provider is None:
+            raise LLMServiceError("No LLM provider key detected.")
+
+        if provider == "anthropic":
+            content = self._anthropic_vision_completion(image_bytes, media_type, self._FLOOR_PLAN_PROMPT)
+        else:
+            raise LLMServiceError(
+                f"Vision analysis requires the Anthropic provider; '{provider}' is not supported."
+            )
+
+        parsed = self._extract_and_validate_floor_plan_json(content)
+        return parsed, provider
+
+    def _anthropic_vision_completion(
+        self, image_bytes: bytes, media_type: str, text_prompt: str
+    ) -> str:
+        """Call Claude vision API with an image or PDF document."""
+
+        import base64
+
+        encoded = base64.standard_b64encode(image_bytes).decode("utf-8")
+
+        if media_type == "application/pdf":
+            media_block: dict[str, Any] = {
+                "type": "document",
+                "source": {"type": "base64", "media_type": "application/pdf", "data": encoded},
+            }
+        else:
+            media_block = {
+                "type": "image",
+                "source": {"type": "base64", "media_type": media_type, "data": encoded},
+            }
+
+        headers = {
+            "x-api-key": settings.anthropic_api_key,
+            "anthropic-version": "2023-06-01",
+            "content-type": "application/json",
+        }
+        payload = {
+            "model": "claude-sonnet-4-6",
+            "max_tokens": 2000,
+            "temperature": 0,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        media_block,
+                        {"type": "text", "text": text_prompt},
+                    ],
+                }
+            ],
+        }
+        try:
+            response = requests.post(
+                "https://api.anthropic.com/v1/messages",
+                headers=headers,
+                json=payload,
+                timeout=60,
+            )
+            response.raise_for_status()
+            content_blocks = response.json().get("content") or []
+            text_parts = [b.get("text", "") for b in content_blocks if b.get("type") == "text"]
+            return "\n".join(text_parts).strip()
+        except (requests.RequestException, ValueError) as error:
+            raise LLMServiceError(f"Anthropic vision request failed: {error}") from error
+
+    def _extract_and_validate_floor_plan_json(self, raw_text: str) -> dict[str, Any]:
+        """Extract and lightly validate the floor plan JSON response."""
+
+        text = raw_text.strip()
+        if text.startswith("```"):
+            text = re.sub(r"^```(?:json)?\s*", "", text)
+            text = re.sub(r"\s*```$", "", text)
+
+        if not text.startswith("{"):
+            match = re.search(r"\{[\s\S]*\}", text)
+            if not match:
+                raise LLMServiceError("LLM response did not contain valid JSON object.")
+            text = match.group(0)
+
+        try:
+            payload = json.loads(text)
+        except json.JSONDecodeError as error:
+            raise LLMServiceError(f"Invalid JSON from floor plan LLM response: {error}") from error
+
+        payload.setdefault("rooms", [])
+        payload.setdefault("overall_issues", [])
+        payload.setdefault("overall_suggestions", [])
+        payload.setdefault("confidence", "low")
+        payload.setdefault("north_assumption", "top of image assumed as north")
+        payload.setdefault("analysis_notes", None)
         return payload

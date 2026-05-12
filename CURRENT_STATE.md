@@ -1,9 +1,9 @@
-# Current Application State (Phase 5)
+# Current Application State (Phase 7)
 
-Last updated: 2026-04-07
+Last updated: 2026-05-09
 
 ## 1) Snapshot
-The repository is in Phase 5 status: project workspace plus interpreted free-text constraint loop.
+The repository is in Phase 7 status: Orientation Options feature added on top of Phase 6 (Review Mode floor plan upload).
 
 What is currently true:
 - FastAPI backend remains the source of truth.
@@ -19,7 +19,11 @@ What is currently true:
 - Free-text constraints can now be interpreted into structured candidates with confidence and unresolved tracking.
 - Users can accept, edit, or reject interpreted constraints in onboarding and workspace flows.
 - Accepted/edited interpreted constraints are persisted and merged into effective hard-constraint context with transparent precedence.
-- Full automated test suite passes.
+- Floor plan images and PDFs can be uploaded for AI-assisted environmental analysis (Review Mode).
+- Full automated test suite passes (45 tests).
+- Three scored orientation options are now generated after each Run Analysis.
+- SVG top-down building diagram (compass rose + colour-coded facades) renders per orientation.
+- Full automated test suite passes (54 tests).
 
 ## 2) Implemented Scope
 
@@ -34,6 +38,7 @@ What is currently true:
   - GET /api/v1/analysis/ping
   - POST /api/v1/analysis/baseline
   - POST /api/v1/analysis/agent-review
+  - POST /api/v1/analysis/orientation-options  <- NEW (Phase 7)
 - Projects:
   - GET /api/v1/projects
   - POST /api/v1/projects
@@ -41,6 +46,29 @@ What is currently true:
   - PUT /api/v1/projects/{project_id}
   - POST /api/v1/projects/{project_id}/runs
   - GET /api/v1/projects/{project_id}/runs
+  - POST /api/v1/projects/{project_id}/upload-plan  <- NEW (Phase 6)
+
+### Review Mode - floor plan upload (Phase 6)
+Implemented through:
+- backend/agents/floor_plan_agent.py
+- backend/services/floor_plan_service.py
+- backend/services/llm_service.py (vision methods added)
+- shared/project_state.py (RoomAnalysis, FloorPlanAnalysis schemas added)
+
+Accepted file types: JPEG, PNG, GIF, WebP, PDF.
+
+Pipeline:
+1. File uploaded via POST /api/v1/projects/{project_id}/upload-plan
+2. FloorPlanAgent sends image/PDF to Claude vision API (claude-sonnet-4-6)
+3. Claude extracts rooms, facade orientations, environmental issues, element-level suggestions
+4. FloorPlanService merges inferred orientation_deg and window_to_wall_ratio into
+   project Building fields (only fills blanks, does not overwrite user-supplied values)
+5. Full FloorPlanAnalysis persisted in project current_state.floor_plan_analysis
+6. Provenance tracks which building fields were inferred from the floor plan
+
+Fallback behaviour:
+- MOCK_MODE=true or no ANTHROPIC_API_KEY returns deterministic mock analysis
+- LLM call failure returns graceful fallback with error note in analysis_notes
 
 ### File-backed persistence
 Implemented through backend/services/project_service.py.
@@ -50,7 +78,7 @@ Default storage location:
 
 Per-project structure:
 - project_meta.json
-- current_state.json
+- current_state.json (now includes floor_plan_analysis field)
 - runs/{run_id}.json
 
 ### Iteration model
@@ -69,86 +97,74 @@ What Changed support captures:
 - changed agent metric deltas
 
 ### Frontend workspace UX (main)
-web/ (Next.js) now provides the primary onboarding + workspace experience:
-- Sidebar:
-  - project listing and selection
-  - run history selection
-- Main area:
-  1. Guided onboarding and project creation
-  2. Design state editing
-  3. Constraint editing (structured + free-text)
-  4. Save current state
-  5. Run baseline + agent review + persist run snapshot
-  6. Results and recommendations panel
-  7. What Changed view
-- API calls are centralized in web/lib/api-client.ts and reused across onboarding/workspace components.
-
-### Frontend fallback/debug UX
-- frontend/app.py (Streamlit) remains available for fallback workflow and backend contract debugging.
+web/ (Next.js) provides the primary onboarding + workspace experience.
+- Sidebar: project listing and selection, run history selection
+- Main area: onboarding, design state editing, constraint editing, save, run, results, What Changed view
+- API calls centralized in web/lib/api-client.ts
+- Floor plan upload UI is wired into the Next.js workspace center panel (file picker, drag-and-drop, results panel with room breakdown).
 
 ### Constraint input modes
-- Structured mode:
-  - constraints.hard_constraints
-  - constraints.soft_constraints
-- Written mode:
-  - constraints.free_text
-- Interpreted mode:
-  - project_state.parsed_constraints.extracted_items
-  - item statuses: proposed, accepted, edited, rejected
-  - unresolved_items, confidence_label/score, parser_provider/mode, notes, conflict_warnings
-- Both manual structured constraints and interpreted constraints can be used together and are persisted in project state.
+- Structured mode: constraints.hard_constraints, constraints.soft_constraints
+- Written mode: constraints.free_text
+- Interpreted mode: parsed_constraints.extracted_items with accept/edit/reject statuses
+- Both manual and interpreted constraints can be used together.
 
-Precedence and conflict behavior:
-- Manual hard constraints remain authoritative.
-- Accepted/edited parsed items are appended as supplemental effective hard constraints.
-- Effective analysis context is exposed as constraints.effective_hard_constraints.
-- Conflicts are surfaced in parsed_constraints.conflict_warnings and assumptions.
+
+### Orientation Options – Design Mode (Phase 7)
+Implemented through:
+- backend/services/orientation_service.py (new)
+- backend/schemas/api_models.py (OrientationOption, OrientationOptionsResponse schemas)
+- backend/api/routes/analysis.py (POST /orientation-options endpoint)
+- web/lib/api-types.ts (OrientationOption, OrientationOptionsResponse types)
+- web/lib/api-client.ts (getOrientationOptions() function)
+- web/components/workspace/orientation-diagram.tsx (new SVG component)
+- web/components/workspace/orientation-options.tsx (new 3-card component)
+- web/components/workspace/workspace.tsx (orientationOptions state + handleRun wiring)
+- web/components/workspace/right-panel.tsx (renders OrientationOptions in Insights panel)
+- tests/test_orientation.py (9 new tests, all pass)
+
+Feature behaviour:
+- After Run Analysis, the app sweeps all 8 compass orientations (N/NE/E/SE/S/SW/W/NW)
+- Climate data is fetched once and reused across all 8 sweep variants
+- Each variant gets a composite score: daylight*w + ventilation*w - energy_risk*w (weighted by project priorities)
+- Top 3 are returned; user's current orientation always included even if outside top 3
+- Each option shows: rank badge, label (e.g. "South-East"), orientation in degrees, composite score
+- SVG diagram shows compass rose, dashed sun arc (E to W through south), building rectangle rotated to the orientation, facade colours (west=orange, south=yellow, east=peach, north=blue)
+- Narrative sentence generated per option (LLM if available, heuristic fallback)
+- Orientation Options card appears in the right-panel Insights section
 
 ## 3) Climate Layer Status
 Still active and integrated into every run cycle:
 - Visual Crossing primary weather provider
-- Open-Meteo geocoding
-- Open-Meteo weather fallback
+- Open-Meteo geocoding and weather fallback
 - Mock final fallback
-
-Climate transparency fields remain exposed:
-- climate_context.provider
-- climate_context.source_tier
 
 ## 4) Configuration and Secrets
 - .env is local-only and gitignored.
-- .env.example remains template-only (no real keys).
+- .env.example remains template-only.
 
-Supported env vars include:
-- APP_ENV
-- MOCK_MODE
-- VISUAL_CROSSING_API_KEY
-- OPEN_METEO_BASE_URL
+Supported env vars:
+- APP_ENV, MOCK_MODE
+- VISUAL_CROSSING_API_KEY, OPEN_METEO_BASE_URL
 - PROJECTS_DATA_DIR
-- optional LLM keys: ANTHROPIC_API_KEY and OPENAI_API_KEY
+- ANTHROPIC_API_KEY (required for live floor plan vision and constraint interpretation)
+- OPENAI_API_KEY (optional, constraint interpretation only)
 
-## 5) LLM and Constraint Interpretation Status
+## 5) LLM Status
 
-### Implemented now
-- Centralized config exposes both LLM keys via backend/core/config.py settings.
-- Local .env loading through config is active and does not override process env.
-- backend/services/llm_service.py now provides:
-  - key presence detection helpers
-  - provider availability/selection logic
-  - provider-backed free-text constraint interpretation requests (Anthropic/OpenAI)
-  - strict JSON extraction/validation for parsed constraint outputs
-- backend/services/constraint_parsing_service.py now provides:
-  - LLM-first interpretation path
-  - deterministic heuristic fallback path
-  - transparent confidence/unresolved/conflict metadata
-  - merge logic for effective hard constraints
+### Live LLM calls
+- Free-text constraint interpretation: Anthropic or OpenAI
+- Floor plan vision analysis: Anthropic only (claude-sonnet-4-6)
+- Baseline narrative insight (narrative_insight in BaselineResults): Anthropic or OpenAI
+- Agent review top-option reason and penalty summary: Anthropic or OpenAI
 
-### Available but scoped
-- Live provider-backed calls are currently scoped to free-text constraint interpretation only.
-- Intake mode parsing, baseline narrative generation, and recommendation summarization remain deterministic.
+### Still deterministic
+- Intake mode parsing
+- Heuristic metric scores (energy_risk, daylight_potential, ventilation_potential)
+- Mitigation option candidates and trade-off ranking
 
 ## 6) Testing and Verification
-Current tests include:
+Current tests:
 - tests/test_health.py
 - tests/test_intake.py
 - tests/test_validation.py
@@ -160,23 +176,15 @@ Current tests include:
 - tests/test_constraint_parsing.py
 - tests/test_constraint_interpretation.py
 - tests/test_projects.py
+- tests/test_floor_plan.py  <- NEW (Phase 6)
 - tests/conftest.py
 
 Latest verification:
-- pytest -q result: pending current verification run
-- web build result: npm run build passed
-- Live smoke checks completed for:
-  - backend startup
-  - web frontend startup
-  - onboarding-equivalent project creation
-  - project create/list/get/update
-  - run creation and history retrieval
-  - iterative rerun diff presence
-  - free-text constraint persistence in run input state
-  - interpretation endpoint and parsed-constraint persistence
+- pytest -q result: 45 passed, 0 failed
+- 14 new floor plan tests: agent unit, orientation inference, full API integration
 
 ## 7) Current Product Boundaries
-Intentionally not implemented in this phase:
+Intentionally not implemented:
 - auth/accounts
 - cloud database
 - collaboration/multiplayer
@@ -184,24 +192,22 @@ Intentionally not implemented in this phase:
 - Rhino/IFC/BIM ingestion
 - full simulation engine
 - autonomous agent loops
+- OpenAI provider for vision (Anthropic only)
 
 ## 8) Known Limitations
 - Persistence is local file-based only.
 - Diff view is intentionally simple and key-based.
 - Environmental scoring remains heuristic.
-- No branchable scenario tree yet (single current state per project).
+- No branchable scenario tree yet.
 - No conflict resolution for concurrent edits.
-- LLM integration remains readiness-only; no live provider-backed text generation in main workflows.
-- Interpretation quality is bounded by provider response quality or heuristic coverage.
+- Floor plan orientation and WWR inference is approximate, not BIM-grade.
 
 ## 9) Run Instructions
 Backend:
 - uvicorn backend.main:app --reload
 
 Main frontend:
-- cd web
-- npm install
-- npm run dev
+- cd web and npm install and npm run dev
 
 Fallback frontend:
 - streamlit run frontend/app.py
@@ -210,8 +216,5 @@ Tests:
 - pytest -q
 
 ## 10) Next Suggested Phase
-Scenario branching and comparative decision views:
-- multiple named alternatives per project
-- side-by-side run comparison
-- trend charts across runs
-- stronger climate confidence metadata in UI
+- Scenario branching: multiple named alternatives per project, side-by-side run comparison
+- Wire LLM generation into baseline narrative and agent review summaries

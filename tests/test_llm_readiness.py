@@ -50,4 +50,6 @@ def test_selected_provider_prefers_available_requested_provider(monkeypatch) -> 
 
     assert service.selected_provider() == "anthropic"
     assert service.selected_provider(preferred_provider="openai") == "openai"
-    assert service.generate("hello", preferred_provider="openai").startswith("[PLACEHOLDER:openai]")
+    # generate() now actually calls the provider; with a fake key it fails and falls back.
+    result = service.generate("hello", preferred_provider="openai")
+    assert result.startswith("[FALLBACK]") or not result.startswith("[")

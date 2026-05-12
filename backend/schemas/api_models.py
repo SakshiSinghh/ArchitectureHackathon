@@ -110,3 +110,25 @@ class ConstraintInterpretResponse(BaseModel):
     """Response payload for interpreted constraint candidates."""
 
     parsed_constraints: ParsedConstraints
+
+
+class OrientationOption(BaseModel):
+    """Single orientation candidate with scores and narrative."""
+
+    orientation_deg: float
+    label: str
+    rank: int
+    energy_risk: float
+    daylight_potential: float
+    ventilation_potential: float
+    composite_score: float
+    narrative: str
+    is_current: bool = False
+
+
+class OrientationOptionsResponse(BaseModel):
+    """Three ranked orientation options for Design Mode comparison."""
+
+    options: list[OrientationOption]
+    recommended_orientation_deg: float
+    location: str | None = None

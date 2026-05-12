@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { interpretConstraints } from "@/lib/api-client"
+import { FloorPlanUpload } from "@/components/workspace/floor-plan-upload"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -18,7 +19,7 @@ import {
 } from "@/components/ui/select"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Save, Play, Layers, Lock, SlidersHorizontal, Compass, Building2, MapPin } from "lucide-react"
-import type { ProjectState } from "@/lib/api-types"
+import type { FloorPlanAnalysis, ProjectState } from "@/lib/api-types"
 
 type CenterPanelProps = {
   projectId: string | null
@@ -231,8 +232,19 @@ export function CenterPanel({
       </div>
 
       {/* Content */}
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 min-h-0">
         <div className="grid gap-6 p-6">
+          {/* Review Mode */}
+          {projectId && (
+            <FloorPlanUpload
+              projectId={projectId}
+              onAnalysisComplete={(_analysis: FloorPlanAnalysis) => {
+                // Analysis is persisted server-side; reload state to reflect inferred fields
+                onStateChange(null)
+                setTimeout(() => onStateChange(localData), 0)
+              }}
+            />
+          )}
           {/* Project Info */}
           <Card>
             <CardHeader className="pb-4">

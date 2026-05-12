@@ -12,13 +12,15 @@ import {
   ArrowRight,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import type { AgentReviewResponse, ProjectState, RunDiff, RunSnapshot } from "@/lib/api-types"
+import type { AgentReviewResponse, OrientationOptionsResponse, ProjectState, RunDiff, RunSnapshot } from "@/lib/api-types"
+import { OrientationOptions } from "./orientation-options"
 
 type RightPanelProps = {
   state: ProjectState | null
   review: AgentReviewResponse | null
   diff: RunDiff | null
   run: RunSnapshot | null
+  orientationOptions: OrientationOptionsResponse | null
 }
 
 function numeric(value: unknown): number {
@@ -26,7 +28,7 @@ function numeric(value: unknown): number {
   return Number.isFinite(parsed) ? parsed : 0
 }
 
-export function RightPanel({ state, review, diff, run }: RightPanelProps) {
+export function RightPanel({ state, review, diff, run, orientationOptions }: RightPanelProps) {
   const climateMetrics = (state?.climate_context?.environmental_metrics as Record<string, unknown>) || {}
 
   const baselineMetrics = [
@@ -56,13 +58,13 @@ export function RightPanel({ state, review, diff, run }: RightPanelProps) {
   const recommendations = review?.ranked_options || []
 
   return (
-    <div className="flex h-full w-80 flex-col border-l bg-sidebar">
+    <div className="flex h-full w-80 shrink-0 flex-col border-l bg-sidebar overflow-hidden">
       {/* Header */}
       <div className="flex h-16 items-center border-b px-4">
         <h2 className="font-semibold">Insights</h2>
       </div>
 
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 min-h-0">
         <div className="space-y-4 p-4">
           {/* Baseline Metrics */}
           <Card>
@@ -104,6 +106,18 @@ export function RightPanel({ state, review, diff, run }: RightPanelProps) {
               })}
             </CardContent>
           </Card>
+
+          {/* Orientation Options */}
+          {orientationOptions && (
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium">Orientation Options</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <OrientationOptions data={orientationOptions} />
+              </CardContent>
+            </Card>
+          )}
 
           {/* Top Recommendation */}
           <Card className="border-accent/50 bg-accent/5">

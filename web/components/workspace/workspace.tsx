@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import {
   createRun,
+  getOrientationOptions,
   getProject,
   getProjects,
   getRuns,
@@ -12,6 +13,7 @@ import {
 } from "@/lib/api-client"
 import type {
   AgentReviewResponse,
+  OrientationOptionsResponse,
   ProjectDetailResponse,
   ProjectState,
   RunDiff,
@@ -20,6 +22,7 @@ import type {
 import { LeftSidebar } from "./left-sidebar"
 import { CenterPanel } from "./center-panel"
 import { RightPanel } from "./right-panel"
+import { GrasshopperPanel } from "./grasshopper-panel"
 
 type WorkspaceProps = {
   initialProjectId: string | null
@@ -37,6 +40,8 @@ export function Workspace({ initialProjectId }: WorkspaceProps) {
   const [reviewPreview, setReviewPreview] = useState<AgentReviewResponse | null>(null)
   const [isSaving, setIsSaving] = useState(false)
   const [isRunning, setIsRunning] = useState(false)
+  const [orientationOptions, setOrientationOptions] = useState<OrientationOptionsResponse | null>(null)
+  const [showGrasshopper, setShowGrasshopper] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const refreshProjects = useCallback(async () => {
@@ -121,6 +126,13 @@ export function Workspace({ initialProjectId }: WorkspaceProps) {
       const review = await runAgentReview(baseline.project_state)
       setReviewPreview(review)
 
+      try {
+        const orientOptions = await getOrientationOptions(baseline.project_state)
+        setOrientationOptions(orientOptions)
+      } catch (_) {
+        // orientation options are non-blocking
+      }
+
       const persisted = await createRun(projectId, draftState)
       setLatestDiff(persisted.diff_from_previous)
 
@@ -145,13 +157,18 @@ export function Workspace({ initialProjectId }: WorkspaceProps) {
       <LeftSidebar
         projects={projects}
         activeProjectId={projectId}
-        onSelectProject={setProjectId}
+        onSelectProject={(id) => { setProjectId(id); setShowGrasshopper(false) }}
         runs={runs}
         selectedRunId={selectedRunId}
         onSelectRun={setSelectedRunId}
+        onGrasshopperClick={() => setShowGrasshopper((v) => !v)}
+        showingGrasshopper={showGrasshopper}
       />
       <div className="flex flex-1 overflow-hidden">
         <div className="flex-1 overflow-hidden">
+          {showGrasshopper ? (
+            <GrasshopperPanel />
+          ) : (
           <CenterPanel
             projectId={projectId}
             state={draftState}
@@ -162,13 +179,17 @@ export function Workspace({ initialProjectId }: WorkspaceProps) {
             isRunning={isRunning}
             error={error}
           />
+          )}
         </div>
-        <RightPanel
-          state={baselinePreview || selectedRun?.baseline_state || projectDetail?.current_state || null}
-          review={reviewPreview || selectedRun?.agent_review || null}
-          diff={latestDiff}
-          run={selectedRun}
-        />
+        <div className="shrink-0">
+          <RightPanel
+            state={baselinePreview || selectedRun?.baseline_state || projectDetail?.current_state || null}
+            review={reviewPreview || selectedRun?.agent_review || null}
+            diff={latestDiff}
+            run={selectedRun}
+            orientationOptions={orientationOptions}
+          />
+        </div>
       </div>
     </div>
   )

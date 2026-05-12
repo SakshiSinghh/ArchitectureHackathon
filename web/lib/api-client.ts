@@ -1,6 +1,8 @@
 import type {
   AgentReviewResponse,
   ConstraintInterpretResponse,
+  FloorPlanUploadResponse,
+  OrientationOptionsResponse,
   ProjectDetailResponse,
   ProjectRunsResponse,
   ProjectsListResponse,
@@ -106,5 +108,21 @@ export async function interpretConstraints(projectState: ProjectState, preferred
   return post<ConstraintInterpretResponse>("/api/v1/intake/interpret-constraints", {
     project_state: projectState,
     preferred_provider: preferredProvider || null,
+  })
+}
+
+export async function uploadFloorPlan(projectId: string, file: File): Promise<FloorPlanUploadResponse> {
+  const formData = new FormData()
+  formData.append("file", file)
+  const response = await fetch(`${API_BASE_URL}/api/v1/projects/${projectId}/upload-plan`, {
+    method: "POST",
+    body: formData,
+  })
+  return (await parseOrThrow(response)) as FloorPlanUploadResponse
+}
+
+export async function getOrientationOptions(projectState: ProjectState): Promise<OrientationOptionsResponse> {
+  return post<OrientationOptionsResponse>("/api/v1/analysis/orientation-options", {
+    project_state: projectState,
   })
 }
