@@ -20,7 +20,7 @@ import {
 import {
   Save, Play, Layers, Lock, SlidersHorizontal, Compass, Download,
   Building2, MapPin, Thermometer, Sun, Wind, Lightbulb, ArrowRight,
-  FolderOpen, BarChart2, Plug, TrendingUp, TrendingDown, Minus, FileDown,
+  FolderOpen, BarChart2, Plug, TrendingUp, TrendingDown, Minus, FileDown, Menu,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type {
@@ -43,6 +43,7 @@ type CenterPanelProps = {
   orientationOptions: OrientationOptionsResponse | null
   activeTab?: string
   onTabChange?: (tab: string) => void
+  onMenuClick?: () => void
 }
 
 const buildingTypes = [
@@ -106,7 +107,7 @@ export function CenterPanel({
   projectId, state, onStateChange, onSave, onRun,
   isSaving, isRunning, error,
   review, diff, run, orientationOptions,
-  activeTab = "project", onTabChange,
+  activeTab = "project", onTabChange, onMenuClick,
 }: CenterPanelProps) {
   const [localData, setLocalData] = useState<ProjectState | null>(state)
   const [hasChanges, setHasChanges] = useState(false)
@@ -248,29 +249,37 @@ export function CenterPanel({
     <Tabs value={activeTab} onValueChange={onTabChange} className="flex h-full flex-col min-h-0">
 
       {/* ── Unified navigation bar ────────────────────────────────────── */}
-      <div className="flex h-14 shrink-0 items-center gap-4 border-b bg-background px-6">
-        <div className="flex min-w-0 flex-1 items-center gap-2.5">
-          <h1 className="truncate text-base font-semibold">{localData.project_name}</h1>
+      <div className="flex h-14 shrink-0 items-center gap-2 border-b bg-background px-3 md:px-6 md:gap-4">
+        {/* Hamburger — mobile only */}
+        <button
+          onClick={onMenuClick}
+          className="md:hidden shrink-0 rounded-md p-1.5 text-muted-foreground hover:text-foreground"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          <h1 className="truncate text-sm font-semibold md:text-base">{localData.project_name}</h1>
           {hasChanges && (
-            <Badge variant="secondary" className="shrink-0 text-xs">Unsaved</Badge>
+            <Badge variant="secondary" className="shrink-0 text-xs hidden sm:inline-flex">Unsaved</Badge>
           )}
         </div>
 
-        <TabsList className="h-9 rounded-lg bg-muted/70 p-1 gap-0">
+        <TabsList className="h-9 rounded-lg bg-muted/70 p-1 gap-0 shrink-0">
           <TabsTrigger value="project" className={triggerCls}>
             <FolderOpen className="h-3.5 w-3.5" />
-            Project
+            <span className="hidden sm:inline">Project</span>
           </TabsTrigger>
           <TabsTrigger value="insights" className={triggerCls}>
             <BarChart2 className="h-3.5 w-3.5" />
-            Insights
+            <span className="hidden sm:inline">Insights</span>
             {hasBaseline && (
               <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-primary border-2 border-muted/70" />
             )}
           </TabsTrigger>
           <TabsTrigger value="grasshopper" className={triggerCls}>
             <Plug className="h-3.5 w-3.5" />
-            Grasshopper
+            <span className="hidden sm:inline">Grasshopper</span>
           </TabsTrigger>
         </TabsList>
 
@@ -279,16 +288,16 @@ export function CenterPanel({
             <a href="/archenv_component.py" download="archenv_component.py">
               <Button variant="outline" size="sm" className="gap-1.5">
                 <Download className="h-3.5 w-3.5" />
-                Download component
+                <span className="hidden sm:inline">Download component</span>
               </Button>
             </a>
           </div>
         ) : (
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1.5 md:gap-2">
             {activeTab === "insights" && hasBaseline && (
               <Button variant="outline" size="sm" onClick={handleExportPDF} className="gap-1.5">
                 <FileDown className="h-3.5 w-3.5" />
-                Export PDF
+                <span className="hidden sm:inline">Export PDF</span>
               </Button>
             )}
             <Button
@@ -296,12 +305,12 @@ export function CenterPanel({
               onClick={commitSave}
               disabled={isSaving || (!hasChanges && !projectId)}
             >
-              <Save className="mr-1.5 h-3.5 w-3.5" />
-              {isSaving ? "Saving…" : "Save"}
+              <Save className="h-3.5 w-3.5 sm:mr-1.5" />
+              <span className="hidden sm:inline">{isSaving ? "Saving…" : "Save"}</span>
             </Button>
             <Button size="sm" onClick={commitRun} disabled={isRunning} className="gap-1.5">
               <Play className="h-3.5 w-3.5" />
-              {isRunning ? "Analysing…" : "Run Analysis"}
+              <span className="hidden sm:inline">{isRunning ? "Analysing…" : "Run Analysis"}</span>
             </Button>
           </div>
         )}

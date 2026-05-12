@@ -28,6 +28,7 @@ type WorkspaceProps = {
 
 export function Workspace({ initialProjectId }: WorkspaceProps) {
   const [projectId, setProjectId] = useState<string | null>(initialProjectId)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const [projects, setProjects] = useState<Array<{ id: string; name: string; updatedAt: string; runCount: number }>>([])
   const [projectDetail, setProjectDetail] = useState<ProjectDetailResponse | null>(null)
   const [draftState, setDraftState] = useState<ProjectState | null>(null)
@@ -153,15 +154,25 @@ export function Workspace({ initialProjectId }: WorkspaceProps) {
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
+      {/* Mobile backdrop */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/40 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       <LeftSidebar
         projects={projects}
         activeProjectId={projectId}
-        onSelectProject={(id) => { setProjectId(id); setActiveTab("project") }}
+        onSelectProject={(id) => { setProjectId(id); setActiveTab("project"); setSidebarOpen(false) }}
         runs={runs}
         selectedRunId={selectedRunId}
-        onSelectRun={setSelectedRunId}
-        onGrasshopperClick={() => setActiveTab((t) => t === "grasshopper" ? "project" : "grasshopper")}
+        onSelectRun={(id) => { setSelectedRunId(id); setSidebarOpen(false) }}
+        onGrasshopperClick={() => { setActiveTab((t) => t === "grasshopper" ? "project" : "grasshopper"); setSidebarOpen(false) }}
         showingGrasshopper={activeTab === "grasshopper"}
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
       />
       <div className="flex-1 overflow-hidden">
         <CenterPanel
@@ -179,6 +190,7 @@ export function Workspace({ initialProjectId }: WorkspaceProps) {
           orientationOptions={orientationOptions}
           activeTab={activeTab}
           onTabChange={setActiveTab}
+          onMenuClick={() => setSidebarOpen(true)}
         />
       </div>
     </div>
