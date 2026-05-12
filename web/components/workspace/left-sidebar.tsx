@@ -124,11 +124,12 @@ export function LeftSidebar({
       <div className="border-t p-3">
         <button
           onClick={onGrasshopperClick}
-          className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors ${
+          className={cn(
+            "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors",
             showingGrasshopper
-              ? "bg-green-600 text-white"
-              : "hover:bg-sidebar-accent/50 text-muted-foreground"
-          }`}
+              ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+              : "text-muted-foreground hover:bg-sidebar-accent/50"
+          )}
         >
           <Plug className="h-4 w-4 shrink-0" />
           <span className="font-medium">Grasshopper Plugin</span>
