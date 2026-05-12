@@ -1,10 +1,9 @@
 "use client"
 
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Download, Plug, Sliders, ToggleRight, Terminal, CheckCircle2 } from "lucide-react"
+import { Plug, Sliders, ToggleRight, Terminal, Lightbulb, ChevronRight, Download } from "lucide-react"
 
 const STEPS = [
   {
@@ -16,7 +15,7 @@ const STEPS = [
   {
     icon: Download,
     title: "Download the component",
-    content: "Click the Download button above. Save the .py file somewhere you can find it.",
+    content: "Use the Download button in the top bar. Save the .py file somewhere you can find it.",
     code: null,
   },
   {
@@ -28,13 +27,13 @@ const STEPS = [
   {
     icon: Sliders,
     title: "Add inputs",
-    content: "Right-click the component, go to Inputs, and add these four params:",
+    content: "Right-click the component → Inputs, add these four params:",
     code: "orientation_deg  (float)\nlocation         (str)\nbuilding_type    (str)\nrun              (bool)",
   },
   {
     icon: Sliders,
     title: "Add outputs",
-    content: "Right-click the component, go to Outputs, and add these params:",
+    content: "Right-click the component → Outputs, add these params:",
     code: "energy_risk\ndaylight_potential\nventilation_potential\nbest_orientation\nbest_score\nnarrative\nall_options",
   },
   {
@@ -46,13 +45,13 @@ const STEPS = [
   {
     icon: Sliders,
     title: "Wire up inputs",
-    content: "Connect these components to the inputs:",
+    content: "Connect components to the inputs:",
     code: "Number Slider (0-360)  →  orientation_deg\nPanel with city name   →  location\nPanel with type        →  building_type\nBoolean Toggle         →  run",
   },
   {
     icon: ToggleRight,
     title: "Run it",
-    content: "Right-click the Boolean Toggle and set to True. Scores and ranked orientation options appear in the output panels instantly.",
+    content: "Right-click the Boolean Toggle and set to True. Scores and ranked orientation options appear instantly.",
     code: null,
   },
 ]
@@ -61,14 +60,14 @@ const INPUTS = [
   { name: "orientation_deg", type: "float", example: "90", note: "0 = North, 90 = East, 180 = South, 270 = West" },
   { name: "location", type: "str", example: "Pune", note: "City name used for climate data lookup" },
   { name: "building_type", type: "str", example: "office", note: "office / residential / mixed_use" },
-  { name: "run", type: "bool", example: "True", note: "Toggle to True to fire the request to the backend" },
+  { name: "run", type: "bool", example: "True", note: "Toggle to True to fire the backend request" },
 ]
 
 const OUTPUTS = [
-  { name: "energy_risk", note: "0-1 score for your current orientation" },
-  { name: "daylight_potential", note: "0-1 score for your current orientation" },
-  { name: "ventilation_potential", note: "0-1 score for your current orientation" },
-  { name: "best_orientation", note: "Label of the top-ranked orientation e.g. South-East" },
+  { name: "energy_risk", note: "0–1 score for current orientation" },
+  { name: "daylight_potential", note: "0–1 score for current orientation" },
+  { name: "ventilation_potential", note: "0–1 score for current orientation" },
+  { name: "best_orientation", note: "Label of top-ranked orientation e.g. South-East" },
   { name: "best_score", note: "Composite score of the best option" },
   { name: "narrative", note: "One-sentence insight for the top option" },
   { name: "all_options", note: "Formatted text of all 3 ranked options with scores" },
@@ -76,41 +75,21 @@ const OUTPUTS = [
 
 export function GrasshopperPanel() {
   return (
-    <div className="flex h-full flex-col">
-      {/* Header */}
-      <div className="flex h-16 items-center justify-between border-b px-6 shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-600">
-            <Plug className="h-4 w-4 text-white" />
-          </div>
-          <div>
-            <h1 className="font-semibold">Grasshopper Plugin</h1>
-            <p className="text-xs text-muted-foreground">GHPython component — Rhino 7 + 8</p>
-          </div>
-        </div>
-        <a href="/archenv_component.py" download="archenv_component.py">
-          <Button className="gap-2 bg-green-600 hover:bg-green-700 text-white">
-            <Download className="h-4 w-4" />
-            Download component
-          </Button>
-        </a>
-      </div>
+    <ScrollArea className="h-full">
+      <div className="space-y-5 p-6 max-w-3xl mx-auto">
 
-      <ScrollArea className="flex-1 min-h-0">
-        <div className="space-y-6 p-6 max-w-3xl">
-
-          {/* What it does */}
-          <Card>
+        {/* Overview */}
+        <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">What this does</CardTitle>
+              <CardTitle className="text-sm font-semibold">Overview</CardTitle>
             </CardHeader>
-            <CardContent className="text-sm text-muted-foreground space-y-2">
+            <CardContent className="space-y-3 text-sm text-muted-foreground">
               <p>
-                A single GHPython component that calls the ArchEnv backend directly from your Grasshopper canvas.
+                A single GHPython component that calls the ArchEnv backend from your Grasshopper canvas.
                 Drag an orientation slider and get energy, daylight, and ventilation scores — plus 3 ranked
                 orientation options with narratives — without leaving Rhino.
               </p>
-              <div className="flex gap-2 pt-1">
+              <div className="flex flex-wrap gap-2 pt-1">
                 <Badge variant="secondary">Rhino 7 (IronPython)</Badge>
                 <Badge variant="secondary">Rhino 8 (CPython)</Badge>
                 <Badge variant="secondary">No plugins needed</Badge>
@@ -118,90 +97,86 @@ export function GrasshopperPanel() {
             </CardContent>
           </Card>
 
-          {/* Setup steps */}
+          {/* Setup steps — collapsible */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">Setup — 8 steps</CardTitle>
+              <CardTitle className="text-sm font-semibold">Setup — 8 steps</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-2 pb-4">
               {STEPS.map((step, i) => {
                 const Icon = step.icon
                 return (
-                  <div key={i} className="flex gap-3">
-                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold mt-0.5">
-                      {i + 1}
-                    </div>
-                    <div className="flex-1 space-y-1.5">
-                      <div className="flex items-center gap-2">
-                        <Icon className="h-3.5 w-3.5 text-muted-foreground" />
-                        <span className="text-sm font-medium">{step.title}</span>
+                  <details key={i} className="group rounded-lg border overflow-hidden">
+                    <summary className="flex cursor-pointer select-none list-none items-center justify-between gap-3 p-3 text-sm font-medium hover:bg-muted/50 transition-colors duration-150 [&::-webkit-details-marker]:hidden">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
+                          {i + 1}
+                        </span>
+                        <Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                        <span className="truncate">{step.title}</span>
                       </div>
-                      <p className="text-xs text-muted-foreground">{step.content}</p>
+                      <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 group-open:rotate-90" />
+                    </summary>
+                    <div className="border-t px-4 pb-4 pt-3 space-y-2">
+                      <p className="text-xs text-muted-foreground leading-relaxed">{step.content}</p>
                       {step.code && (
-                        <pre className="rounded-md bg-muted px-3 py-2 text-xs font-mono whitespace-pre-wrap">{step.code}</pre>
+                        <pre className="rounded-md bg-muted px-3 py-2.5 text-xs font-mono whitespace-pre-wrap leading-relaxed">{step.code}</pre>
                       )}
                     </div>
-                  </div>
+                  </details>
                 )
               })}
             </CardContent>
           </Card>
 
-          {/* Inputs reference */}
+          {/* Input reference */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">Input reference</CardTitle>
+              <CardTitle className="text-sm font-semibold">Inputs</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {INPUTS.map((inp) => (
-                  <div key={inp.name} className="flex items-start gap-3 rounded-md bg-muted/50 px-3 py-2">
-                    <code className="text-xs font-mono font-semibold w-36 shrink-0 mt-0.5">{inp.name}</code>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="h-4 px-1 text-xs">{inp.type}</Badge>
-                        <span className="text-xs text-muted-foreground">e.g. {inp.example}</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-0.5">{inp.note}</p>
-                    </div>
+            <CardContent className="space-y-2">
+              {INPUTS.map((inp) => (
+                <div key={inp.name} className="rounded-md bg-muted/50 p-2.5 space-y-1">
+                  <div className="flex items-center gap-2">
+                    <code className="text-xs font-mono font-semibold">{inp.name}</code>
+                    <Badge variant="outline" className="h-4 px-1 text-[10px]">{inp.type}</Badge>
+                    <span className="text-[10px] text-muted-foreground">e.g. {inp.example}</span>
                   </div>
-                ))}
-              </div>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">{inp.note}</p>
+                </div>
+              ))}
             </CardContent>
           </Card>
 
-          {/* Outputs reference */}
+          {/* Output reference */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium">Output reference</CardTitle>
+              <CardTitle className="text-sm font-semibold">Outputs</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {OUTPUTS.map((out) => (
-                  <div key={out.name} className="flex items-start gap-3 rounded-md bg-muted/50 px-3 py-2">
-                    <code className="text-xs font-mono font-semibold w-36 shrink-0 mt-0.5">{out.name}</code>
-                    <p className="text-xs text-muted-foreground">{out.note}</p>
-                  </div>
-                ))}
-              </div>
+            <CardContent className="space-y-2">
+              {OUTPUTS.map((out) => (
+                <div key={out.name} className="rounded-md bg-muted/50 p-2.5 space-y-1">
+                  <code className="text-xs font-mono font-semibold block">{out.name}</code>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">{out.note}</p>
+                </div>
+              ))}
             </CardContent>
           </Card>
 
           {/* Tip */}
-          <Card className="border-green-200 bg-green-50/50 dark:bg-green-950/20 dark:border-green-800">
-            <CardContent className="flex gap-3 pt-4 pb-4">
-              <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0 mt-0.5" />
-              <p className="text-xs text-muted-foreground">
+          <Card className="border-primary/20 bg-primary/5">
+            <CardContent className="flex gap-2.5 pt-4 pb-4">
+              <Lightbulb className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+              <p className="text-xs text-muted-foreground leading-relaxed">
                 <span className="font-medium text-foreground">Tip: </span>
-                The component works without a Claude API key — it uses the same heuristic scoring as the web app.
-                Add <code className="bg-muted px-1 rounded">ANTHROPIC_API_KEY</code> to your{" "}
-                <code className="bg-muted px-1 rounded">.env</code> to get AI-written narrative insights.
+                Works without a Claude API key using heuristic scoring. Add{" "}
+                <code className="rounded bg-muted px-1">ANTHROPIC_API_KEY</code> to{" "}
+                <code className="rounded bg-muted px-1">.env</code> for AI-written narrative insights.
               </p>
             </CardContent>
           </Card>
 
-        </div>
-      </ScrollArea>
-    </div>
+      </div>
+    </ScrollArea>
   )
 }

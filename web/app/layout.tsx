@@ -7,8 +7,8 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Formscape - AI Design Decisions for Architecture',
-  description: 'AI-powered design decision tool for architects. Create projects and iteratively refine building designs based on environmental performance.',
+  title: 'ArchEnv — Environmental Intelligence for Architects',
+  description: 'AI-powered environmental analysis tool for architects. Evaluate energy risk, daylight, ventilation and orientation options for your building designs.',
   generator: 'v0.app',
   icons: {
     icon: [
