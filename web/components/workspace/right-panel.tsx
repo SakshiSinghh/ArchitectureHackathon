@@ -64,7 +64,7 @@ export function RightPanel({ state, review, diff, run, orientationOptions }: Rig
     },
     {
       label: "Heat Exposure",
-      value: numeric(b?.heat_exposure) * 100,
+      value: numeric(b?.heat_exposure_score) * 100,
       unit: "%",
       icon: Thermometer,
       color: "[&>div]:bg-red-400",
